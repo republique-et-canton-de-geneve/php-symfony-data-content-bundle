@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+bin/console lint:container
+bin/console lint:yaml config src
