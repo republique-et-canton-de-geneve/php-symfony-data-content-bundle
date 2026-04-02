@@ -1,4 +1,4 @@
-name: phpunit84
+name: php84unit
 on: push
 jobs:
   behat:
