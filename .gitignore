@@ -1,0 +1,8 @@
+vendor
+composer.lock
+clover.xml
+cobertura.xml
+.phpunit.result.cache
+html-coverage/
+.phpunit.cache/
+.php-cs-fixer.cache
