@@ -36,37 +36,41 @@ class DataContentExtension extends Extension implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         /** @var ArrayNodeDefinition $rootNode */
         $child = $rootNode->children();
-        $child->scalarNode('applicationId')->isRequired()->cannotBeEmpty()->info('Application Name Id')->end();
         $child->booleanNode('checkSSL')->defaultTrue()->end();
+        $child->scalarNode('applicationId')->isRequired()->cannotBeEmpty()->info('Application Name Id')->end();
         $child->scalarNode('clientId')->cannotBeEmpty()->info('Client Id for token authentification')->end();
         $child->scalarNode('clientSecret')->cannotBeEmpty()->info('Client secret for token authentification')->end();
-        $child->scalarNode('username')->cannotBeEmpty()->info('Username for token authentification')->end();
-        $child->scalarNode('password')->cannotBeEmpty()->info('Password secret for token authentification')->end();
-        $child->scalarNode('tokenTimeout')->defaultValue(10)->info('Timout conection for authentification')->end();
-        $child->scalarNode('tokenAuthSsoUrl')->cannotBeEmpty()->info('Timout connection for token authentification')->end();
         $child->scalarNode('restUrl')->isRequired()->cannotBeEmpty()->info('Rest Url for DataContent')->end();
         $child->scalarNode('baseId')->isRequired()->cannotBeEmpty()->info('Base Id for DataContent')->end();
-        $child->scalarNode('audience')->isRequired()->cannotBeEmpty()->info('Audience for token request')->end();
         $child->scalarNode('timeout')->defaultValue(10)->info('Timout conection for DataContent')->end();
-        $child->scalarNode('tokenAuthenticatorClass')->defaultValue(TokenAuthenticator::class)->info('Class for token authentification')->end();
+
+        $child->scalarNode('tokenAuthenticatorClass')->info('Service for token authentification')->end();
+
+        $child->scalarNode('username')->info('Username for token authentification')->end();
+        $child->scalarNode('password')->info('Password secret for token authentification')->end();
+        $child->scalarNode('audience')->info('Audience for token request')->end();
+        $child->scalarNode('tokenTimeout')->defaultValue(10)->info('Timout conection for authentification')->end();
+        $child->scalarNode('tokenAuthSsoUrl')->info('Timout connection for token authentification')->end();
 
         return $treeBuilder;
     }
 
     /**
-     * @param array{'data_content':  array{'tokenAuthenticatorClass': string}   } $config
+     * @param array{'data_content':  array{'tokenAuthenticatorClass': ?string}   } $config
      */
     public function load(array $config, ContainerBuilder $container): void
     {
         $configuration = $this;
         $tokenAuthenticatorClass = $config['data_content']['tokenAuthenticatorClass'];
-        $config = $this->processConfiguration($configuration, $config);
-        $authDef = new Definition($tokenAuthenticatorClass);
-        $authDef->setArgument('$config', $config);
-        $authDef->setAutowired(true);
-        $authDef->setAutoconfigured(true);
-        $container->setDefinition($tokenAuthenticatorClass, $authDef);
-
+        if (!$tokenAuthenticatorClass) {
+            $tokenAuthenticatorClass = TokenAuthenticator::class;
+            $config = $this->processConfiguration($configuration, $config);
+            $authDef = new Definition($tokenAuthenticatorClass);
+            $authDef->setArgument('$config', $config);
+            $authDef->setAutowired(true);
+            $authDef->setAutoconfigured(true);
+            $container->setDefinition($tokenAuthenticatorClass, $authDef);
+        }
         $dcDef = new Definition(DataContent::class);
         $dcDef->setArgument('$config', $config);
         $dcDef->setAutowired(true);

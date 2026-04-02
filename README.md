@@ -5,6 +5,68 @@ A Symfony bundle to easily send headers in your HTTP response
 For Symfony 5.4
 
 ### Usage
+You define one or more headers response in your yaml configuration, for exemple:
+
+```
+---
+#config/packages/datacontent.yml
+data_content:
+  checkSSL: true
+        # Name of application
+  applicationId: myAppli
+        # GED client Id
+  clientId: clientId
+        # Ged client secret
+  clientSecret: 'secret'
+        # URL for GED REST request
+  restUrl: 'http://ged.localhost'
+        # Base ID
+  baseId: baseId
+        # Timeout for DataContent in seconds
+  timeout: 20
+        # service for token authentication
+  tokenAuthenticatorClass: ~
+        # Username account for get a token
+  username: 'User'
+        # Password  for get a token
+  password: 'password'
+        # Audience for token request
+  audience: audience
+        # URL for get a token
+  tokenAuthSsoUrl: http://sso.localhost
+        # Timeout for token in seconds
+  tokenTimeout: 15
+...
+```
+
+| parameter                 |  definition                              |
+|---------------------------|------------------------------------------|
+| checkSSL                  | (bool) check the ssl                    |
+| applicationId             | Application name Id                     |
+| clientId                  | GED client Id                           |
+| clientSecret              | Ged client secret                       |
+| restUrl                   | URL for GED REST request                |
+| baseId                    | Base ID                                 |
+| timeout                   | Timeout for DataContent in seconds      |
+
+When using the default service for token authentification
+| parameter                 |  definition                              |
+|---------------------------|------------------------------------------|
+| username                  | Username account for get a token         |
+| password                  | Password  for get a token                |
+| audience                  | Audience for token request               |
+| tokenAuthSsoUrl           | URL for get a token                      |
+| tokenTimeout              | Timeout for token in seconds             |
+
+
+If you want to use your own authentication service instead of the standard one
+| parameter                 |  definition                              |
+|---------------------------|------------------------------------------|
+| tokenAuthenticatorClass   | service id for token authentication      |
+
+Your service implement class EtatGeneve\DataContentBundle\Service\InterfaceTokenAuthenticator
+
+
 
 
 ## Installation

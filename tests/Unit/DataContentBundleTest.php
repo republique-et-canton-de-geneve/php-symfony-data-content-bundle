@@ -4,7 +4,6 @@ namespace EtatGeneve\DatatContentBundle\Tests\Unit;
 
 use EtatGeneve\DataContentBundle\DataContentBundle;
 use EtatGeneve\DataContentBundle\DataContentExtension;
-use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -22,7 +21,7 @@ class DataContentBundleTest extends TestCase
         $dataContentExtension = $this->DataContentBundle->getContainerExtension();
         $this->assertInstanceOf(DataContentExtension::class, $dataContentExtension);
         $config = ['data_content' => [
-            'tokenAuthenticatorClass' => TokenAuthenticator::class,
+            'tokenAuthenticatorClass' => null,
             'applicationId' => 'xxapplicationId',
             'checkSSL' => true,
             'clientId' => 'xxclientId',
@@ -38,7 +37,6 @@ class DataContentBundleTest extends TestCase
         ]];
         $containerBuilder = new ContainerBuilder();
         $dataContentExtension->load($config, $containerBuilder);
-        //    $this->expectNotToPerformAssertions();
     }
 
     public function testGetAlias(): void

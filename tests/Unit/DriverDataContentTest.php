@@ -29,7 +29,7 @@ class DriverDataContentTest extends TestCase
     public function setUp(): void
     {
         $config = [
-            'tokenAuthenticatorClass' => TokenAuthenticator::class,
+            'tokenAuthenticatorClass' => null,
             'applicationId' => 'xxapplicationId',
             'checkSSL' => true,
             'clientId' => 'xxclientId',

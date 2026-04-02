@@ -22,7 +22,7 @@ use Symfony\Component\Mime\Part\Multipart\FormDataPart;
  * restUrl : string,
  * baseId : string,
  * audience : string,
- * tokenAuthenticatorClass : string
+ * tokenAuthenticatorClass : ?string
  * }
  */
 class DataContent extends DriverDataContent

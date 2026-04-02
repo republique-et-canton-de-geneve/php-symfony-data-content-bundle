@@ -24,5 +24,5 @@ data_content:
         # Audience for token request
   audience: audience
         # service for token authentication
-  #tokenAuthenticatorClass: EtatGeneve\DataContentBundle\Service\TokenAuthenticator
+  tokenAuthenticatorClass: ~
 ...
