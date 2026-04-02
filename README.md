@@ -25,8 +25,8 @@ Code coverage :
 ![coverage line](https://raw.githubusercontent.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/refs/heads/main/coverage_line.svg)
 ![coverage branche](https://raw.githubusercontent.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/refs/heads/main/coverage_branch.svg)
 
-[![phpunit php7.4](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/phpunit74.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/phpunit74.yml)
-[![phpunit php8.4](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/phpunit84.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/phpunit84.yml)
+[![phpunit php7.4](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/php74unit.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/php74unit.yml)
+[![phpunit php8.4](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/php84unit.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/php84unit.yml)
 [![phpstan](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/phpstan.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/phpstan.yml)
 [![rector](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/rector.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/rector.yml)
 [![php-cs-fixer](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/php-cs-fixer.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/php-cs-fixer.yml)
