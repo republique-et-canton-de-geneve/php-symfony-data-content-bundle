@@ -1,0 +1,32 @@
+{
+    "phpstan.enabled": true,
+    "phpstan.rootDir": "",
+    "phpstan.configFile": "phpstan.neon",
+    "phpstan.binPath": "/home/user/www/php-symfony-data-content-bundle",
+    "phpstan.binCommand": [
+        "docker",
+        "exec",
+        "-t",
+        "php74",
+        "php",
+        "vendor/phpstan/phpstan/phpstan",
+    ],
+    "phpstan.paths": {
+        "/home/user/www": "/var/www"
+    },
+    "phpstan.options": [],
+    "phpstan.enableStatusBar": true,
+    "phpstan.memoryLimit": "2048M",
+    "phpstan.singleFileMode": true,
+    "phpstan.projectTimeout": 60000,
+    "phpstan.timeout": 60000,
+    "phpstan.suppressTimeoutMessage": false,
+    "phpstan.showProgress": true,
+    "phpstan.showTypeOnHover": true,
+    "phpstan.ignoreErrors": [],
+    "phpstan.suppressWorkspaceMessage": false,
+    "phpstan.pro": false,
+    "phpstan.tmpDir": "",
+    "phpstan.checkValidity": true,
+    "phpstan.dockerContainerName": "php74"
+}

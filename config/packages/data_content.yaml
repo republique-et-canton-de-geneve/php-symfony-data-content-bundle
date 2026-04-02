@@ -1,0 +1,28 @@
+---
+data_content:
+  checkSSL: false
+        # Name of application
+  applicationId: myAppli
+        # Username account for get a token
+  username: 'User'
+        # Password  for get a token
+  password: 'password'
+        # URL for get a token
+  tokenAuthSsoUrl: http://sso.localhost
+        # Timeout for token in seconds
+  tokenTimeout: 15
+        # Timeout for DataContent in seconds
+  timeout: 20
+        # Ged client secret
+  clientSecret: 'secret'
+        # GED client Id
+  clientId: clientId
+        # URL for GED REST request
+  restUrl: 'http://ged.localhost'
+        # Base ID
+  baseId: baseId
+        # Audience for token request
+  audience: audience
+        # service for token authentication
+  #tokenAuthenticatorClass: EtatGeneve\DataContentBundle\Service\TokenAuthenticator
+...
