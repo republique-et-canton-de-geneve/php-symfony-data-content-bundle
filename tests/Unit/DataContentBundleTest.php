@@ -43,6 +43,10 @@ class DataContentBundleTest extends TestCase
 
     public function testGetAlias(): void
     {
-        $this->assertEquals('data_content', $this->DataContentBundle->getContainerExtension()->getAlias());
+        /**
+         * @var DataContentExtension $containerExtension
+         */
+        $containerExtension = $this->DataContentBundle->getContainerExtension();
+        $this->assertEquals('data_content', $containerExtension->getAlias());
     }
 }

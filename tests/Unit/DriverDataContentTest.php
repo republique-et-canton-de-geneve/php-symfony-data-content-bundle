@@ -6,7 +6,6 @@ use EtatGeneve\DataContentBundle\DataContentException;
 use EtatGeneve\DataContentBundle\Service\DataContent;
 use EtatGeneve\DataContentBundle\Service\DriverDataContent;
 use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Security;
@@ -22,8 +21,10 @@ class DriverDataContentTest extends TestCase
     protected DriverDataContent $driverDataContent;
     protected ?string $userIdentifier;
     protected int $responseStatusCode;
+    /** @var array<string, array<int, string>> */
     protected array $responseHeader;
-    protected string $responseContent;
+    /** @var string|bool */
+    protected $responseContent;
 
     public function setUp(): void
     {
@@ -58,16 +59,16 @@ class DriverDataContentTest extends TestCase
             );
         $security->method('getUser')->willReturnCallback(
             function () use ($user) {
-                if ($this->userIdentifier === null) {
+                if (null === $this->userIdentifier) {
                     return null;
                 }
+
                 return $user;
             }
         );
 
-
         $this->responseStatusCode = 200;
-        $this->responseContent = "";
+        $this->responseContent = '';
         $this->responseHeader = [];
 
         $response = $this->createMock(ResponseInterface::class);
@@ -88,8 +89,7 @@ class DriverDataContentTest extends TestCase
         );
 
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient->method('request')
-            ->willReturn($response);
+        $httpClient->method('request')->willReturn($response);
 
         $this->driverDataContent = new DriverDataContent(
             $httpClient,
@@ -109,8 +109,9 @@ class DriverDataContentTest extends TestCase
             ['Custom-Header' => 'HeaderValue'],
             10
         );
-        $this->assertContainsOnlyInstancesOf(ResponseInterface::class, [$response]);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
     }
+
     public function testCommandError(): void
     {
         $this->responseStatusCode = 500;
@@ -121,7 +122,7 @@ class DriverDataContentTest extends TestCase
             ['Custom-Header' => 'HeaderValue'],
             10
         );
-        $this->assertContainsOnlyInstancesOf(ResponseInterface::class, [$response]);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
     public function testCommandNoUser(): void
@@ -135,7 +136,7 @@ class DriverDataContentTest extends TestCase
             10
         );
 
-        $this->assertContainsOnlyInstancesOf(ResponseInterface::class, [$response]);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
     public function testCommandNullUser(): void
@@ -149,9 +150,8 @@ class DriverDataContentTest extends TestCase
             10
         );
 
-        $this->assertContainsOnlyInstancesOf(ResponseInterface::class, [$response]);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
     }
-
 
     public function testCommandJsonRsp(): void
     {
@@ -179,9 +179,6 @@ class DriverDataContentTest extends TestCase
         $this->assertEquals(null, $response);
     }
 
-
-
-
     public function testCommandJsonRspError500(): void
     {
         $this->responseContent = json_encode('data');
@@ -199,10 +196,10 @@ class DriverDataContentTest extends TestCase
     public function testCommandJsonRspError(): void
     {
         $this->responseHeader['content-type'][0] = 'application/json';
-        $this->responseContent = json_encode((object)['exceptionCode' => 100, 'exceptionMessage' => 'Error message']);
+        $this->responseContent = json_encode((object) ['exceptionCode' => 100, 'exceptionMessage' => 'Error message']);
         $this->responseStatusCode = 500;
         $this->expectException(DataContentException::class);
-        $this->expectExceptionMessage("DataContent : Error for command /test-command : 100 Error message");
+        $this->expectExceptionMessage('DataContent : Error for command /test-command : 100 Error message');
         $response = $this->driverDataContent->commandJsonRsp(
             'GET',
             '/test-command',

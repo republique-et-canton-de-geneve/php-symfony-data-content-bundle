@@ -12,6 +12,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 use function is_int;
 use function is_object;
 use function is_string;
+use function sprintf;
 
 /**
  * @phpstan-import-type DataContentConfig from DataContent
@@ -79,7 +80,8 @@ class DriverDataContent
                 'body' => $body,
                 'headers' => $headers,
                 'addtionalTimeout' => $addtionalTimeout,
-            ]);
+            ]
+        );
         $url = $this->config['restUrl'] . $command;
         $username = $this->getUserIdentifier();
         if ($username) {
@@ -125,10 +127,13 @@ class DriverDataContent
         $data = json_decode($content);
         if (400 <= $status) {
             $error = 'DataContent : Error, the response id not a json';
-            if ('application/json' == ($headers['content-type'][0] ?? null) && is_object($data) && isset($data->exceptionCode)) {
-                $error = 'DataContent : Error for command ' . $command . ' : ' .
-                (is_int($data->exceptionCode) ? $data->exceptionCode : '') . ' ' .
-                (is_string($data->exceptionMessage ?? '') ? $data->exceptionMessage : '');
+            if (
+                'application/json' == ($headers['content-type'][0] ?? null) && is_object($data)
+                && isset($data->exceptionCode) && isset($data->exceptionMessage)
+            ) {
+                $code = is_int($data->exceptionCode) ? $data->exceptionCode : 0;
+                $message = is_string($data->exceptionMessage) ? $data->exceptionMessage : '';
+                $error = sprintf('DataContent : Error for command %s : %d %s', $command, $code, $message);
             }
             throw new DataContentException($error);
         }

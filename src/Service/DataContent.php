@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @phpstan-type DataContentConfig array{
@@ -165,7 +164,6 @@ class DataContent extends DriverDataContent
      * This method allows you to create a new document in a database by passing the document's
      * metadata and content as parameters.
      *
-     * @param string|null                                                                   $title
      * @param array<string,string>                                                          $criterions
      * @param array{'creationDate'?: string|int, 'filename'?: string, 'extension'?: string} $options
      *
@@ -204,7 +202,7 @@ class DataContent extends DriverDataContent
      *
      *    This date, 20231124102543000 UTC, corresponds to November 24, 2023, at 11:25:43 GMT+1
      */
-    public function storeDocument(string $filePath, $title = null, $criterions = [], $options = [])
+    public function storeDocument(string $filePath, ?string $title = null, array $criterions = [], $options = [])
     {
         $this->logger->debug(
             'DataContent :  storeDocument  ',
@@ -251,6 +249,4 @@ class DataContent extends DriverDataContent
 
         return $this->commandJsonRsp('DELETE', '/store/' . $uuid);
     }
-
-    
 }

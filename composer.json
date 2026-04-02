@@ -1,10 +1,10 @@
 {
     "name": "republique-et-canton-de-geneve/php-data-content-bundle",
     "version": "1.0.0",
-    "description": "A Symfony bundle for Tessi Data Content.",
+    "description": "Symfony bundle for GED tessi data content.",
     "type": "symfony-bundle",
     "require": {
-        "php": "^7.4",
+        "php": ">=7.4 <8.4",
         "symfony/dependency-injection": "^5.4",
         "symfony/http-kernel": "^5.4",
         "symfony/config": "^5.4",
