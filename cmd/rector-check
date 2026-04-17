@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-vendor/bin/rector process src --dry-run
+vendor/bin/rector process --dry-run

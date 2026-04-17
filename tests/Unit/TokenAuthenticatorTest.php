@@ -51,9 +51,7 @@ class TokenAuthenticatorTest extends TestCase
         $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getContent')->willReturnCallback(
-            function () {
-                return $this->httpClientResponse;
-            }
+            fn () => $this->httpClientResponse
         );
 
         $httpClient->method('request')->willReturn($response);
@@ -93,13 +91,13 @@ class TokenAuthenticatorTest extends TestCase
             'expires_in' => 3600,
         ]);
         $this->expectException(DataContentException::class);
-        $token = $this->tokenAuthenticator->getToken();
+        $this->tokenAuthenticator->getToken();
     }
 
     public function testGetErrorToken(): void
     {
         $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
         $this->expectException(DataContentException::class);
-        $token = $this->tokenAuthenticatorException->getToken();
+        $this->tokenAuthenticatorException->getToken();
     }
 }

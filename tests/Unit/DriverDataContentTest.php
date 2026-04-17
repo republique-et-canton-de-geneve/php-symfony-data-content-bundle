@@ -53,12 +53,10 @@ class DriverDataContentTest extends TestCase
         $user = $this->createMock(User::class);
         $user->method('getUserIdentifier')
             ->willReturnCallback(
-                function () {
-                    return $this->userIdentifier;
-                }
+                fn () => $this->userIdentifier
             );
         $security->method('getUser')->willReturnCallback(
-            function () use ($user) {
+            function () use ($user): ?\PHPUnit\Framework\MockObject\MockObject {
                 if (null === $this->userIdentifier) {
                     return null;
                 }
@@ -73,19 +71,13 @@ class DriverDataContentTest extends TestCase
 
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getStatusCode')->willReturnCallback(
-            function () {
-                return $this->responseStatusCode;
-            }
+            fn () => $this->responseStatusCode
         );
         $response->method('getHeaders')->willReturnCallback(
-            function () {
-                return $this->responseHeader;
-            }
+            fn () => $this->responseHeader
         );
         $response->method('getContent')->willReturnCallback(
-            function () {
-                return $this->responseContent;
-            }
+            fn () => $this->responseContent
         );
 
         $httpClient = $this->createMock(HttpClientInterface::class);
@@ -184,7 +176,7 @@ class DriverDataContentTest extends TestCase
         $this->responseContent = json_encode('data');
         $this->responseStatusCode = 500;
         $this->expectException(DataContentException::class);
-        $response = $this->driverDataContent->commandJsonRsp(
+        $this->driverDataContent->commandJsonRsp(
             'GET',
             '/test-command',
             null,
@@ -200,7 +192,7 @@ class DriverDataContentTest extends TestCase
         $this->responseStatusCode = 500;
         $this->expectException(DataContentException::class);
         $this->expectExceptionMessage('DataContent : Error for command /test-command : 100 Error message');
-        $response = $this->driverDataContent->commandJsonRsp(
+        $this->driverDataContent->commandJsonRsp(
             'GET',
             '/test-command',
             null,

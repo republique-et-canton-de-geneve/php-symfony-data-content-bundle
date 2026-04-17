@@ -50,9 +50,7 @@ class DataContentTest extends TestCase
         $response->method('getStatusCode')->willReturn(200);
         $response->method('getHeaders')->willReturn([]);
         $response->method('getContent')->willReturnCallback(
-            function () {
-                return $this->responseContent;
-            }
+            fn () => $this->responseContent
         );
 
         $httpClient = $this->createMock(HttpClientInterface::class);
@@ -98,7 +96,7 @@ class DataContentTest extends TestCase
 
         $this->responseContent = 'data';
         $this->expectException(DataContentException::class);
-        $result = $this->dataContent->getDocument('test-uuid', true, false);
+        $this->dataContent->getDocument('test-uuid', true, false);
     }
 
     public function testStoreDocument(): void
