@@ -53,7 +53,7 @@ class DriverDataContentTest extends TestCase
         $user = $this->createMock(User::class);
         $user->method('getUserIdentifier')
             ->willReturnCallback(
-                fn () => $this->userIdentifier
+                fn (): string => $this->userIdentifier
             );
         $security->method('getUser')->willReturnCallback(
             function () use ($user): ?\PHPUnit\Framework\MockObject\MockObject {
@@ -71,13 +71,13 @@ class DriverDataContentTest extends TestCase
 
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getStatusCode')->willReturnCallback(
-            fn () => $this->responseStatusCode
+            fn (): int => $this->responseStatusCode
         );
         $response->method('getHeaders')->willReturnCallback(
-            fn () => $this->responseHeader
+            fn (): array => $this->responseHeader
         );
         $response->method('getContent')->willReturnCallback(
-            fn () => $this->responseContent
+            fn (): string => $this->responseContent
         );
 
         $httpClient = $this->createMock(HttpClientInterface::class);

@@ -50,7 +50,7 @@ class DataContentTest extends TestCase
         $response->method('getStatusCode')->willReturn(200);
         $response->method('getHeaders')->willReturn([]);
         $response->method('getContent')->willReturnCallback(
-            fn () => $this->responseContent
+            fn (): string => $this->responseContent
         );
 
         $httpClient = $this->createMock(HttpClientInterface::class);
