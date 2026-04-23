@@ -1,5 +1,5 @@
 {
-    "name": "republique-et-canton-de-geneve/php-data-content-bundle",
+    "name": "republique-et-canton-de-geneve/php-symfony-data-content-bundle",
     "description": "Symfony bundle for GED tessi data content.",
     "type": "symfony-bundle",
     "require": {
@@ -26,6 +26,7 @@
         "symfony",
         "response",
         "Data Content" ,
+        "DataContent",
         "Tessi"
     ],
     "autoload": {
