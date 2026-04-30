@@ -1,6 +1,5 @@
 # A Symfony bundle for GED tessi data content .
 
-A Symfony bundle to easily send headers in your HTTP response
 
 For Symfony 5.4
 
