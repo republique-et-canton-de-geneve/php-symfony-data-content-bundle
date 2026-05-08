@@ -5,35 +5,22 @@ namespace EtatGeneve\DataContentBundle;
 use EtatGeneve\DataContentBundle\Service\DataContent;
 use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 /**
  * @phpstan-import-type DataContentConfig from DataContent
  */
-class DataContentBundle extends Bundle
+class DataContentBundle extends AbstractBundle
 {
-    public function getContainerExtension(): ?Extension
+    public function configure(DefinitionConfigurator $definition): void
     {
-        return new DataContentExtension();
-    }
-}
-
-class DataContentExtension extends Extension implements ConfigurationInterface
-{
-    public function getAlias(): string
-    {
-        return 'data_content';
-    }
-
-    public function getConfigTreeBuilder(): TreeBuilder
-    {
-        $treeBuilder = new TreeBuilder('data_content');
-        $rootNode = $treeBuilder->getRootNode();
+        /**
+         * @var ArrayNodeDefinition
+         */
+        $rootNode = $definition->rootNode();
         /** @var ArrayNodeDefinition $rootNode */
         $child = $rootNode->children();
         $child->scalarNode('checkSSL')->defaultValue(1)->end();
@@ -44,37 +31,31 @@ class DataContentExtension extends Extension implements ConfigurationInterface
         $child->scalarNode('baseId')->isRequired()->cannotBeEmpty()->info('Base Id for DataContent')->end();
         $child->scalarNode('timeout')->defaultValue(10)->info('Timout conection for DataContent')->end();
 
-        $child->scalarNode('tokenAuthenticatorClass')->info('Service for token authentification')->end();
+        $child->scalarNode('tokenAuthenticatorClass')->defaultValue(null)->info('Service for token authentification')->end();
 
         $child->scalarNode('username')->info('Username for token authentification')->end();
         $child->scalarNode('password')->info('Password secret for token authentification')->end();
         $child->scalarNode('audience')->info('Audience for token request')->end();
         $child->scalarNode('tokenTimeout')->defaultValue(10)->info('Timout conection for authentification')->end();
         $child->scalarNode('tokenAuthSsoUrl')->info('Timout connection for token authentification')->end();
-
-        return $treeBuilder;
     }
 
     /**
-     * @param array<int, array{'tokenAuthenticatorClass': ?string}> $config
-     */
-    public function load(array $config, ContainerBuilder $container): void
+     * @param array<string,array{condition:string}|array{}|array{string:string|array<string>}> $config
+     **/
+    public function loadExtension(array $config, ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void
     {
-        $configuration = $this;
-        $tokenAuthenticatorClass = $config[0]['tokenAuthenticatorClass'];
+        $tokenAuthenticatorClass = $config['tokenAuthenticatorClass'];
+        $services = $containerConfigurator->services();
+        $services
+            ->defaults()
+            ->autowire()      // Automatically injects dependencies in your services.
+            ->autoconfigure();
         if (!$tokenAuthenticatorClass) {
-            $tokenAuthenticatorClass = TokenAuthenticator::class;
-            $config = $this->processConfiguration($configuration, $config);
-            $authDef = new Definition($tokenAuthenticatorClass);
-            $authDef->setArgument('$config', $config);
-            $authDef->setAutowired(true);
-            $authDef->setAutoconfigured(true);
-            $container->setDefinition($tokenAuthenticatorClass, $authDef);
+            $services->set(TokenAuthenticator::class)
+                ->arg('$config', $config);
         }
-        $dcDef = new Definition(DataContent::class);
-        $dcDef->setArgument('$config', $config);
-        $dcDef->setAutowired(true);
-        $dcDef->setAutoconfigured(true);
-        $container->setDefinition(DataContent::class, $dcDef);
+        $services->set(DataContent::class)
+            ->arg('$config', $config);
     }
 }
