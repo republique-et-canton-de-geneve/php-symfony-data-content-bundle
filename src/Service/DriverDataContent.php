@@ -4,7 +4,7 @@ namespace EtatGeneve\DataContentBundle\Service;
 
 use EtatGeneve\DataContentBundle\DataContentException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
