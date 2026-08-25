@@ -127,6 +127,16 @@ class DataContentTest extends TestCase
     }
 
     #[AllowMockObjectsWithoutExpectations]
+    public function testStoreDocumentError(): void
+    {
+        $path = realpath(__DIR__ . '/../Fixtures');
+        $this->assertIsString($path);
+        $path .= '/no-file-exist.txt';
+        $this->expectException(DataContentException::class);
+        $this->dataContent->storeDocument($path, null, ['crtiterions' => 'value1']);
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
     public function testDeleteDocument(): void
     {
         $this->expectNotToPerformAssertions();

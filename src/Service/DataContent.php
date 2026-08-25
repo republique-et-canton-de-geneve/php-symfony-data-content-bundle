@@ -103,7 +103,7 @@ class DataContent extends DriverDataContent
      *
      * @param array{fulltext?:?bool,pagesize?:?int,offset?:?int,sortCategoryName?:?string,reversedSort?:?bool,
      * indexOrderPreference?:?string,searchLimit?:?int,timeZone?:?string} $options
-     * @param int $additionalTimeout timemout additonnel pour une transaction
+     * @param int $additionalTimeout Additional timeout for a transaction
      */
     public function searchByQuery(?string $query, array $options = [], int $additionalTimeout = 0): mixed
     {

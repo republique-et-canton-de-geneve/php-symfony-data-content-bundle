@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -55,7 +55,7 @@ class TokenAuthenticatorTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $this->cache = new FilesystemAdapter();
+        $this->cache = new ArrayAdapter();
         $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getContent')->willReturnCallback(

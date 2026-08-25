@@ -116,7 +116,8 @@ class DriverDataContent
                 ['type' => $type, 'command' => $command, 'exception' => $e]
             );
 
-            throw new DataContentRemoteException(sprintf('DataContent : network error for command %s', $command), 0, $e);
+            throw new DataContentRemoteException(
+                sprintf('DataContent : network error for command %s return', $command), 0, $e);
         }
         if (in_array($status, [401, 403]) || 500 <= $status) {
             $this->tokenAuthenticator->reset();
