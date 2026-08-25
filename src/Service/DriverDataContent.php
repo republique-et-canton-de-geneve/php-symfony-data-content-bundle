@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Service;
 
-use EtatGeneve\DataContentBundle\DataContentRemoteException;
+use EtatGeneve\DataContentBundle\Exception\DataContentRemoteException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -116,8 +116,7 @@ class DriverDataContent
                 ['type' => $type, 'command' => $command, 'exception' => $e]
             );
 
-            throw new DataContentRemoteException(
-                sprintf('DataContent : network error for command %s return', $command), 0, $e);
+            throw new DataContentRemoteException(sprintf('DataContent : network error for command %s return', $command), 0, $e);
         }
         if (in_array($status, [401, 403]) || 500 <= $status) {
             $this->tokenAuthenticator->reset();

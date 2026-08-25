@@ -51,7 +51,7 @@ data_content:
 | baseId                    | Base ID                                 |
 | timeout                   | Timeout for DataContent in seconds      |
 
-When using the default service for token authentification
+When using the default service for token authentication
 | parameter                 |  definition                              |
 |---------------------------|------------------------------------------|
 | username                  | Username account for get a token         |

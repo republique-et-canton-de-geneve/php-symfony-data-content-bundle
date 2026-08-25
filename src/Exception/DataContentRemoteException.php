@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EtatGeneve\DataContentBundle;
+namespace EtatGeneve\DataContentBundle\Exception;
 
 /**
  * Thrown when the GED REST API returns an error response (HTTP >= 400)

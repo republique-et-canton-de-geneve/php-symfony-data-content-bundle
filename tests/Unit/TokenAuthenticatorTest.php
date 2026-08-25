@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
-use EtatGeneve\DataContentBundle\DataContentConfigException;
-use EtatGeneve\DataContentBundle\DataContentException;
+use EtatGeneve\DataContentBundle\Exception\DataContentConfigException;
+use EtatGeneve\DataContentBundle\Exception\DataContentException;
 use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
 use Exception;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;

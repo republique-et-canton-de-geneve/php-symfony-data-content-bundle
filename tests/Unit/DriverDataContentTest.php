@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
-use EtatGeneve\DataContentBundle\DataContentException;
-use EtatGeneve\DataContentBundle\DataContentRemoteException;
+use EtatGeneve\DataContentBundle\Exception\DataContentException;
+use EtatGeneve\DataContentBundle\Exception\DataContentRemoteException;
 use EtatGeneve\DataContentBundle\Service\DataContent;
 use EtatGeneve\DataContentBundle\Service\DriverDataContent;
 use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EtatGeneve\DataContentBundle;
+namespace EtatGeneve\DataContentBundle\Exception;
 
 /**
  * Thrown when the bundle configuration is missing or invalid

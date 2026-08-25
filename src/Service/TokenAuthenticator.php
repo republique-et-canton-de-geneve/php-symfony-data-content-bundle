@@ -2,8 +2,8 @@
 
 namespace EtatGeneve\DataContentBundle\Service;
 
-use EtatGeneve\DataContentBundle\DataContentAuthenticationException;
-use EtatGeneve\DataContentBundle\DataContentConfigException;
+use EtatGeneve\DataContentBundle\Exception\DataContentAuthenticationException;
+use EtatGeneve\DataContentBundle\Exception\DataContentConfigException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -53,7 +53,7 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
 
     public function reset(): void
     {
-        $this->logger->debug('DatatContent : Clear cache token');
+        $this->logger->debug('DataContent : Clear cache token');
         $this->cache->delete(self::DATA_CONTENT_TOKEN_CACHE_KEY);
     }
 
@@ -66,7 +66,7 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
             self::DATA_CONTENT_TOKEN_CACHE_KEY,
             function (ItemInterface $item): mixed {
                 try {
-                    $this->logger->debug('DatatContent : get token');
+                    $this->logger->debug('DataContent : get token');
                     $parameters = [
                         'verify_host' => $this->config['checkSSL'],
                         'verify_peer' => $this->config['checkSSL'],

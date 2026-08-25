@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Service;
 
-use EtatGeneve\DataContentBundle\DataContentException;
-use EtatGeneve\DataContentBundle\DataContentJsonException;
-use EtatGeneve\DataContentBundle\DataContentNotFoundException;
+use EtatGeneve\DataContentBundle\Exception\DataContentException;
+use EtatGeneve\DataContentBundle\Exception\DataContentJsonException;
+use EtatGeneve\DataContentBundle\Exception\DataContentNotFoundException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Part\DataPart;
@@ -115,7 +115,7 @@ class DataContent extends DriverDataContent
             '@class' => 'net.docubase.toolkit.model.search.SortedSearchQuery',
             'query' => $query,
             'fullText' => $options['fullText'] ?? null,
-            // be careful,  a exception is throw if the DataContent base is a not a fullText
+            // be careful, an exception is throw if the DataContent base is a not a fullText
             'pageSize' => $options['pageSize'] ?? null,
             'offset' => $options['offset'] ?? null,
             'sortCategoryName' => $options['sortCategoryName'] ?? null,
