@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EtatGeneve\DataContentBundle\Service;
 
-use EtatGeneve\DataContentBundle\DataContentException;
+use EtatGeneve\DataContentBundle\DataContentRemoteException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Throwable;
 
 use function is_int;
 use function is_object;
@@ -35,13 +38,19 @@ class DriverDataContent
         LoggerInterface $logger,
         Security $security,
         TokenAuthenticator $tokenAuthenticator,
-        array $config
+        array $config,
     ) {
         $this->httpClient = $httpClient;
         $this->logger = $logger;
         $this->security = $security;
         $this->tokenAuthenticator = $tokenAuthenticator;
         $this->config = $config;
+        if (!$config['checkSSL']) {
+            $this->logger->warning(
+                'DataContent : SSL certificate/host verification is DISABLED (checkSSL=false).'
+                . ' This should never be used in production.'
+            );
+        }
     }
 
     /**
@@ -67,19 +76,18 @@ class DriverDataContent
         string $command,
         $body = null,
         array $headers = [],
-        int $addtionalTimeout = 0
+        int $additionalTimeout = 0,
     ): ResponseInterface {
         $headers['X-Application-ID'] = $this->config['applicationId'];
-        $headers['X-Tenant-ID'] = 'admin';
-        $headers['X-Correlation-ID'] = uniqid();
+        $headers['X-Tenant-ID'] = $this->config['tenantId'];
+        $headers['X-Correlation-ID'] = bin2hex(random_bytes(8));
         $this->logger->debug(
             'DataContent : execute command ',
             [
                 'type' => $type,
                 'command' => $command,
-                'body' => $body,
                 'headers' => $headers,
-                'addtionalTimeout' => $addtionalTimeout,
+                'additionalTimeout' => $additionalTimeout,
             ]
         );
         $url = $this->config['restUrl'] . $command;
@@ -94,12 +102,23 @@ class DriverDataContent
             'verify_peer' => $this->config['checkSSL'],
             'auth_bearer' => $this->tokenAuthenticator->getToken(),
             'body' => $body,
-            'timeout' => $this->config['timeout'] + $addtionalTimeout,
-            'max_duration' => $this->config['timeout'] + $addtionalTimeout,
+            'timeout' => $this->config['timeout'] + $additionalTimeout,
+            'max_duration' => $this->config['timeout'] + $additionalTimeout,
         ];
-        $response = $this->httpClient->request($type, $url, $options);
-        $status = $response->getStatusCode();
-        if (400 <= $status) {
+        try {
+            $response = $this->httpClient->request($type, $url, $options);
+            // Symfony's HttpClient is lazy: the status code is only fetched on first access,
+            // which is when transport-level errors (DNS, connect timeout, TLS, ...) surface.
+            $status = $response->getStatusCode();
+        } catch (Throwable $e) {
+            $this->logger->error(
+                'DataContent : network error while calling GED',
+                ['type' => $type, 'command' => $command, 'exception' => $e]
+            );
+
+            throw new DataContentRemoteException(sprintf('DataContent : network error for command %s', $command), 0, $e);
+        }
+        if (in_array($status, [401, 403]) || 500 <= $status) {
             $this->tokenAuthenticator->reset();
         }
 
@@ -110,23 +129,21 @@ class DriverDataContent
      * @param string  $type    // 'GET', 'PUT', 'DELETE', ....
      * @param mixed[] $headers
      * @param mixed   $body
-     *
-     * @return mixed
      */
     public function commandJsonRsp(
         string $type,
         string $command,
         $body = null,
         array $headers = [],
-        int $addtionalTimeout = 0
-    ) {
-        $response = $this->command($type, $command, $body, $headers, $addtionalTimeout);
+        int $additionalTimeout = 0,
+    ): mixed {
+        $response = $this->command($type, $command, $body, $headers, $additionalTimeout);
         $headers = $response->getHeaders(false);
         $status = $response->getStatusCode();
         $content = $response->getContent(false);
         $data = json_decode($content);
         if (400 <= $status) {
-            $error = 'DataContent : Error, the response id not a json';
+            $error = 'DataContent : Error, the response is not a valid json';
             if (
                 'application/json' == ($headers['content-type'][0] ?? null) && is_object($data)
                 && isset($data->exceptionCode) && isset($data->exceptionMessage)
@@ -135,7 +152,12 @@ class DriverDataContent
                 $message = is_string($data->exceptionMessage) ? $data->exceptionMessage : '';
                 $error = sprintf('DataContent : Error for command %s : %d %s', $command, $code, $message);
             }
-            throw new DataContentException($error);
+            $this->logger->error(
+                'DataContent : GED returned an error response',
+                ['command' => $command, 'status' => $status]
+            );
+
+            throw new DataContentRemoteException($error);
         }
 
         return $data;

@@ -1,26 +1,33 @@
 <?php
 
-namespace EtatGeneve\DatatContentBundle\Tests\Unit;
+declare(strict_types=1);
+
+namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
 use EtatGeneve\DataContentBundle\DataContentException;
+use EtatGeneve\DataContentBundle\DataContentRemoteException;
 use EtatGeneve\DataContentBundle\Service\DataContent;
 use EtatGeneve\DataContentBundle\Service\DriverDataContent;
 use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
+use Exception;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\User;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @phpstan-import-type DataContentConfig from DataContent
  */
+#[CoversClass(DriverDataContent::class)]
 class DriverDataContentTest extends TestCase
 {
     protected DriverDataContent $driverDataContent;
     protected ?string $userIdentifier;
-    protected int $responseStatusCode;
+    protected int $responseStatusCode = 200;
     /** @var array<string, array<int, string>> */
     protected array $responseHeader;
     /** @var string|bool */
@@ -31,7 +38,8 @@ class DriverDataContentTest extends TestCase
         $config = [
             'tokenAuthenticatorClass' => null,
             'applicationId' => 'xxapplicationId',
-            'checkSSL' => true,
+            'tenantId' => 'xxtenantId',
+            'checkSSL' => false,
             'clientId' => 'xxclientId',
             'clientSecret' => 'xxclientSecret',
             'username' => 'xxusername',
@@ -50,7 +58,7 @@ class DriverDataContentTest extends TestCase
         $tokenAuthenticator->method('getToken')->willReturn('fake_token');
 
         $this->userIdentifier = 'test_user';
-        $user = $this->createMock(User::class);
+        $user = $this->createMock(UserInterface::class);
         $user->method('getUserIdentifier')
             ->willReturnCallback(
                 fn (): string => $this->userIdentifier
@@ -65,13 +73,12 @@ class DriverDataContentTest extends TestCase
             }
         );
 
-        $this->responseStatusCode = 200;
         $this->responseContent = '';
         $this->responseHeader = [];
 
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getStatusCode')->willReturnCallback(
-            fn (): int => $this->responseStatusCode
+            fn (): int => (500 !== $this->responseStatusCode) ? $this->responseStatusCode : throw new Exception()
         );
         $response->method('getHeaders')->willReturnCallback(
             fn (): array => $this->responseHeader
@@ -92,6 +99,7 @@ class DriverDataContentTest extends TestCase
         );
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testCommand(): void
     {
         $response = $this->driverDataContent->command(
@@ -104,9 +112,11 @@ class DriverDataContentTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
-    public function testCommandError(): void
+    #[AllowMockObjectsWithoutExpectations]
+    public function testCommandError500(): void
     {
         $this->responseStatusCode = 500;
+        $this->expectException(DataContentRemoteException::class);
         $response = $this->driverDataContent->command(
             'GET',
             '/test-command',
@@ -117,6 +127,21 @@ class DriverDataContentTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
+    public function testCommandError501(): void
+    {
+        $this->responseStatusCode = 501;
+        $response = $this->driverDataContent->command(
+            'GET',
+            '/test-command',
+            null,
+            ['Custom-Header' => 'HeaderValue'],
+            10
+        );
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
     public function testCommandNoUser(): void
     {
         $this->userIdentifier = '';
@@ -131,6 +156,7 @@ class DriverDataContentTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testCommandNullUser(): void
     {
         $this->userIdentifier = null;
@@ -145,6 +171,7 @@ class DriverDataContentTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testCommandJsonRsp(): void
     {
         $this->responseContent = json_encode('data');
@@ -158,6 +185,7 @@ class DriverDataContentTest extends TestCase
         $this->assertEquals('data', $response);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testCommandJsonRspCorrupt(): void
     {
         $this->responseContent = 'xxx';
@@ -171,6 +199,7 @@ class DriverDataContentTest extends TestCase
         $this->assertEquals(null, $response);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testCommandJsonRspError500(): void
     {
         $this->responseContent = json_encode('data');
@@ -185,11 +214,12 @@ class DriverDataContentTest extends TestCase
         );
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testCommandJsonRspError(): void
     {
         $this->responseHeader['content-type'][0] = 'application/json';
         $this->responseContent = json_encode((object) ['exceptionCode' => 100, 'exceptionMessage' => 'Error message']);
-        $this->responseStatusCode = 500;
+        $this->responseStatusCode = 501;
         $this->expectException(DataContentException::class);
         $this->expectExceptionMessage('DataContent : Error for command /test-command : 100 Error message');
         $this->driverDataContent->commandJsonRsp(

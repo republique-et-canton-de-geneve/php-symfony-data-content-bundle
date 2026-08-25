@@ -13,10 +13,12 @@ data_content:
   checkSSL: true
         # Name of application
   applicationId: myAppli
+        # Tenant Id
+  tenantId: admin
         # GED client Id
   clientId: clientId
         # Ged client secret
-  clientSecret: 'secret'
+  clientSecret: '%env(DATA_CONTENT_CLIENT_SECRET)%'
         # URL for GED REST request
   restUrl: 'http://ged.localhost'
         # Base ID
@@ -28,7 +30,7 @@ data_content:
         # Username account for get a token
   username: 'User'
         # Password  for get a token
-  password: 'password'
+  password: '%env(DATA_CONTENT_PASSWORD)%'
         # Audience for token request
   audience: audience
         # URL for get a token
@@ -38,10 +40,11 @@ data_content:
 ...
 ```
 
-| parameter                 |  definition                              |
-|---------------------------|------------------------------------------|
+| parameter                 |  definition                             |
+|---------------------------|-----------------------------------------|
 | checkSSL                  | (bool) check the ssl                    |
 | applicationId             | Application name Id                     |
+|  tenantId                 | Tenant ID                               |
 | clientId                  | GED client Id                           |
 | clientSecret              | Ged client secret                       |
 | restUrl                   | URL for GED REST request                |
@@ -86,7 +89,6 @@ Code coverage :
 ![coverage line](https://raw.githubusercontent.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/refs/heads/main/coverage_line.svg)
 ![coverage branche](https://raw.githubusercontent.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/refs/heads/main/coverage_branch.svg)
 
-[![phpunit php7.4](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/php74unit.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/php74unit.yml)
 [![phpunit php8.4](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/php84unit.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/php84unit.yml)
 [![phpstan](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/phpstan.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/phpstan.yml)
 [![rector](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/rector.yml/badge.svg)](https://github.com/republique-et-canton-de-geneve/php-symfony-data-content-bundle/actions/workflows/rector.yml)
