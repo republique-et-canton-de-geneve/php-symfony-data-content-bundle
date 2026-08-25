@@ -43,7 +43,7 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
     ) {
         if (!isset($config['clientId'],$config['clientSecret'],$config['username'],
             $config['password'],$config['audience'],$config['tokenAuthSsoUrl'])) {
-            throw new DataContentConfigException('clientId, clientSecret, username, passowrd or audience config parameters are not defined for TokenAuthenticator');
+            throw new DataContentConfigException('clientId, clientSecret, username, password or audience config parameters are not defined for TokenAuthenticator');
         }
         $this->httpClient = $httpClient;
         $this->logger = $logger;
@@ -78,9 +78,9 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
                             'username' => $this->config['username'],
                             'password' => $this->config['password'],
                             'audience' => $this->config['audience'],
-                            'timeout' => $this->config['tokenTimeout'] ?? 15,
-                            'max_duration' => $this->config['tokenTimeout'] ?? 15,
                         ],
+                        'timeout' => $this->config['tokenTimeout'] ?? 15,
+                        'max_duration' => $this->config['tokenTimeout'] ?? 15,
                     ];
 
                     $response = $this->httpClient->request('POST', $this->config['tokenAuthSsoUrl'], $parameters);

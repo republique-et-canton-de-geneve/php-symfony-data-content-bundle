@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Service;
 
+use EtatGeneve\DataContentBundle\DataContentException;
 use EtatGeneve\DataContentBundle\DataContentJsonException;
 use EtatGeneve\DataContentBundle\DataContentNotFoundException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -178,7 +179,7 @@ class DataContent extends DriverDataContent
             $response = new Response($document->getContent());
             $file = (isset($info->filename) && is_string($info->filename)) ? $info->filename : 'file';
             $extension = (isset($info->extension) && is_string($info->extension))
-                ? strtolower($info->extension) : 'bin';
+                ? strtolower(ltrim(trim($info->extension), '.')) : 'bin';
             // Only forward a small, known-safe set of extensions/MIME types; anything else
             // falls back to a generic binary type instead of trusting whatever the GED returns.
             $mimeType = self::EXTENSION_MIME_MAP[$extension] ?? 'application/octet-stream';
@@ -243,6 +244,9 @@ class DataContent extends DriverDataContent
             'DataContent :  storeDocument  ',
             ['filePath' => $filePath, 'title' => $title, 'criterions' => $criterions, 'options' => $options]
         );
+        if (!is_file($filePath) || !is_readable($filePath)) {
+            throw new DataContentException(sprintf('DataContent : Error, local file %s does not exist or is not readable', $filePath));
+        }
 
         $path_parts = pathinfo($filePath);
         if (null === $title) {
