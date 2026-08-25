@@ -17,6 +17,10 @@ use function is_string;
 
 /**
  * @phpstan-import-type DataContentConfig from DataContent
+ *
+ * @phpstan-type DataContentAuthenticatorConfig array{ checkSSL: bool, applicationId: string, clientId: string,
+ * clientSecret: string, username : string, password : string, tokenTimeout? : int, tokenAuthSsoUrl : string,
+ * audience : string }
  */
 class TokenAuthenticator implements InterfaceTokenAuthenticator
 {
@@ -25,7 +29,7 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
     private HttpClientInterface $httpClient;
     private LoggerInterface $logger;
     private CacheInterface $cache;
-    /** @var DataContentConfig */
+    /** @var DataContentAuthenticatorConfig */
     private array $config;
 
     /**
@@ -37,6 +41,10 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
         CacheInterface $cache,
         array $config,
     ) {
+        if (!isset($config['clientId'],$config['clientSecret'],$config['username'],
+            $config['password'],$config['audience'],$config['tokenAuthSsoUrl'])) {
+            throw new DataContentConfigException('clientId, clientSecret, username, passowrd or audience config parameters are not defined for TokenAuthenticator');
+        }
         $this->httpClient = $httpClient;
         $this->logger = $logger;
         $this->cache = $cache;
@@ -57,14 +65,6 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
         $token = $this->cache->get(
             self::DATA_CONTENT_TOKEN_CACHE_KEY,
             function (ItemInterface $item): mixed {
-                if (!isset($this->config['clientId'],
-                    $this->config['clientSecret'],
-                    $this->config['username'],
-                    $this->config['password'],
-                    $this->config['audience']
-                )) {
-                    throw new DataContentConfigException('clientId, clientSecret, username, passowrd or audience parameters are not defined for ToekAuthenticator');
-                }
                 try {
                     $this->logger->debug('DatatContent : get token');
                     $parameters = [
@@ -83,7 +83,7 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
                         ],
                     ];
 
-                    $response = $this->httpClient->request('POST', $this->config['tokenAuthSsoUrl'] ?? '', $parameters);
+                    $response = $this->httpClient->request('POST', $this->config['tokenAuthSsoUrl'], $parameters);
                     $data = json_decode($response->getContent());
                     if (
                         is_object($data) && ($data->id_token ?? false)

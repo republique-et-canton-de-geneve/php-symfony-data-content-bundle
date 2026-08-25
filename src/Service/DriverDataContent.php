@@ -80,7 +80,7 @@ class DriverDataContent
     ): ResponseInterface {
         $headers['X-Application-ID'] = $this->config['applicationId'];
         $headers['X-Tenant-ID'] = $this->config['tenantId'];
-        $headers['X-Correlation-ID'] = uniqid();
+        $headers['X-Correlation-ID'] = bin2hex(random_bytes(8));
         $this->logger->debug(
             'DataContent : execute command ',
             [
@@ -118,7 +118,7 @@ class DriverDataContent
 
             throw new DataContentRemoteException(sprintf('DataContent : network error for command %s', $command), 0, $e);
         }
-        if (400 <= $status) {
+        if (in_array($status, [401, 403]) || 500 <= $status) {
             $this->tokenAuthenticator->reset();
         }
 

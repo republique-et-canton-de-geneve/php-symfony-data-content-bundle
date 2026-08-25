@@ -28,7 +28,6 @@ class TokenAuthenticatorTest extends TestCase
     protected $httpClientResponse;
     protected TokenAuthenticator $tokenAuthenticator;
     protected TokenAuthenticator $tokenAuthenticatorException;
-    protected TokenAuthenticator $tokenAuthenticatorConfigException;
 
     public function setUp(): void
     {
@@ -79,14 +78,6 @@ class TokenAuthenticatorTest extends TestCase
             $this->cache,
             $this->config
         );
-        $configError = $this->config;
-        unset($configError['password']);
-        $this->tokenAuthenticatorConfigException = new TokenAuthenticator(
-            $httpClient,
-            $logger,
-            $this->cache,
-            $configError
-        );
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -126,6 +117,12 @@ class TokenAuthenticatorTest extends TestCase
     {
         $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
         $this->expectException(DataContentConfigException::class);
-        $this->tokenAuthenticatorConfigException->getToken();
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $configError = $this->config;
+        unset($configError['password']);
+        /* @phpstan-ignore-next-line    normal beacuse $configError is wrong */
+        new TokenAuthenticator($httpClient, $logger, $this->cache, $configError);
     }
 }

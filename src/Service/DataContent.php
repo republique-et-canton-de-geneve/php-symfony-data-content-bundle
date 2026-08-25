@@ -25,7 +25,7 @@ use Symfony\Component\Mime\Part\Multipart\FormDataPart;
  * tokenAuthSsoUrl? : string,
  * restUrl : string,
  * baseId : string,
- * audience : string,
+ * audience? : string,
  * tokenAuthenticatorClass : ?string
  * }
  */
@@ -53,6 +53,15 @@ class DataContent extends DriverDataContent
         'xls' => 'application/vnd.ms-excel',
         'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'zip' => 'application/zip',
+        'htm' => 'text/html',
+        'html' => 'text/html',
+        'rtf' => 'application/rtf',
+        'odp' => 'application/vnd.oasis.opendocument.presentation',
+        'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+        'odt' => 'application/vnd.oasis.opendocument.text',
+        'webp' => 'image/webp',
+        'avif' => 'image/avif',
+        'svg' => 'image/svg+xml',
     ];
 
     /**
