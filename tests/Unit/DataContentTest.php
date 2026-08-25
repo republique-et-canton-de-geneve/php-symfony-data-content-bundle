@@ -1,20 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
 use EtatGeneve\DataContentBundle\DataContentException;
+use EtatGeneve\DataContentBundle\DataContentJsonException;
 use EtatGeneve\DataContentBundle\Service\DataContent;
 use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @phpstan-import-type DataContentConfig from DataContent
  */
+#[CoversClass(DataContent::class)]
 class DataContentTest extends TestCase
 {
     protected DataContent $dataContent;
@@ -26,6 +32,7 @@ class DataContentTest extends TestCase
         $config = [
             'tokenAuthenticatorClass' => TokenAuthenticator::class,
             'applicationId' => 'xxapplicationId',
+            'tenantId' => 'xxtenantId',
             'checkSSL' => true,
             'clientId' => 'xxclientId',
             'clientSecret' => 'xxclientSecret',
@@ -65,12 +72,14 @@ class DataContentTest extends TestCase
         );
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testGetBase(): void
     {
         $this->expectNotToPerformAssertions();
         $this->dataContent->getBase();
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testSearchByQuery(): void
     {
         $this->expectNotToPerformAssertions();
@@ -78,12 +87,22 @@ class DataContentTest extends TestCase
         $this->dataContent->searchByQuery('test-query', ['searchLimit' => 100], 10);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
+    public function testSearchByQueryError(): void
+    {
+        // // An invalid UTF8 sequence
+        $this->expectException(DataContentJsonException::class);
+        $this->dataContent->searchByQuery("\xB1\x31", ['searchLimit' => 100], 10);
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
     public function testSearchByUuid(): void
     {
         $this->expectNotToPerformAssertions();
         $this->dataContent->searchByUuid('test-uuid');
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testGetDocument(): void
     {
         $this->responseContent = 'data';
@@ -99,6 +118,7 @@ class DataContentTest extends TestCase
         $this->dataContent->getDocument('test-uuid', true, false);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testStoreDocument(): void
     {
         $path = realpath(__DIR__ . '/../Fixtures/test-file.txt');
@@ -106,6 +126,7 @@ class DataContentTest extends TestCase
         $this->dataContent->storeDocument($path, null, ['crtiterions' => 'value1']);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testDeleteDocument(): void
     {
         $this->expectNotToPerformAssertions();

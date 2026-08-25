@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EtatGeneve\DataContentBundle\Service;
 
 use EtatGeneve\DataContentBundle\DataContentRemoteException;
@@ -36,20 +38,20 @@ class DriverDataContent
         LoggerInterface $logger,
         Security $security,
         TokenAuthenticator $tokenAuthenticator,
-        array $config
+        array $config,
     ) {
         $this->httpClient = $httpClient;
         $this->logger = $logger;
         $this->security = $security;
         $this->tokenAuthenticator = $tokenAuthenticator;
         $this->config = $config;
-          if (!$config['checkSSL']) {
+        if (!$config['checkSSL']) {
             $this->logger->warning(
                 'DataContent : SSL certificate/host verification is DISABLED (checkSSL=false).'
                 . ' This should never be used in production.'
             );
         }
-        }
+    }
 
     /**
      * return user identifier (loginname).
@@ -74,17 +76,17 @@ class DriverDataContent
         string $command,
         $body = null,
         array $headers = [],
-        int $additionalTimeout = 0
+        int $additionalTimeout = 0,
     ): ResponseInterface {
         $headers['X-Application-ID'] = $this->config['applicationId'];
-        $headers['X-Tenant-ID'] = 'admin';
+        $headers['X-Tenant-ID'] = $this->config['tenantId'];
         $headers['X-Correlation-ID'] = uniqid();
         $this->logger->debug(
             'DataContent : execute command ',
             [
                 'type' => $type,
                 'command' => $command,
-                'body' => $body,
+                //                'body' => $body,
                 'headers' => $headers,
                 'additionalTimeout' => $additionalTimeout,
             ]
@@ -104,7 +106,7 @@ class DriverDataContent
             'timeout' => $this->config['timeout'] + $additionalTimeout,
             'max_duration' => $this->config['timeout'] + $additionalTimeout,
         ];
-try {
+        try {
             $response = $this->httpClient->request($type, $url, $options);
             // Symfony's HttpClient is lazy: the status code is only fetched on first access,
             // which is when transport-level errors (DNS, connect timeout, TLS, ...) surface.
@@ -115,11 +117,7 @@ try {
                 ['type' => $type, 'command' => $command, 'exception' => $e]
             );
 
-            throw new DataContentRemoteException(
-                sprintf('DataContent : network error for command %s', $command),
-                0,
-                $e
-            );
+            throw new DataContentRemoteException(sprintf('DataContent : network error for command %s', $command), 0, $e);
         }
         if (400 <= $status) {
             $this->tokenAuthenticator->reset();
@@ -140,7 +138,7 @@ try {
         string $command,
         $body = null,
         array $headers = [],
-        int $additionalTimeout = 0
+        int $additionalTimeout = 0,
     ) {
         $response = $this->command($type, $command, $body, $headers, $additionalTimeout);
         $headers = $response->getHeaders(false);
@@ -157,12 +155,13 @@ try {
                 $message = is_string($data->exceptionMessage) ? $data->exceptionMessage : '';
                 $error = sprintf('DataContent : Error for command %s : %d %s', $command, $code, $message);
             }
-           $this->logger->error(
+            $this->logger->error(
                 'DataContent : GED returned an error response',
                 ['command' => $command, 'status' => $status, 'body' => $content]
             );
 
-            throw new DataContentRemoteException($error);        }
+            throw new DataContentRemoteException($error);
+        }
 
         return $data;
     }

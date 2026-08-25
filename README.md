@@ -13,6 +13,8 @@ data_content:
   checkSSL: true
         # Name of application
   applicationId: myAppli
+        # Tenant Id
+  tenantId: admin
         # GED client Id
   clientId: clientId
         # Ged client secret
@@ -38,10 +40,11 @@ data_content:
 ...
 ```
 
-| parameter                 |  definition                              |
-|---------------------------|------------------------------------------|
+| parameter                 |  definition                             |
+|---------------------------|-----------------------------------------|
 | checkSSL                  | (bool) check the ssl                    |
 | applicationId             | Application name Id                     |
+|  tenantId                 | Tenant ID                               |
 | clientId                  | GED client Id                           |
 | clientSecret              | Ged client secret                       |
 | restUrl                   | URL for GED REST request                |

@@ -1,8 +1,12 @@
+.kilo
+.php-cs-fixer.cache
+.phpunit.cache
+html-coverage/
 vendor
-composer.lock
+.php-cs-fixer.cache
+.phpunit.result.cache
 clover.xml
 cobertura.xml
-.phpunit.result.cache
-html-coverage/
-.phpunit.cache/
-.php-cs-fixer.cache
+composer.lock
+coverage_branch.svg
+coverage_line.svg

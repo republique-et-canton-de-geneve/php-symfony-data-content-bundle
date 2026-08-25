@@ -3,6 +3,8 @@ data_content:
   checkSSL: true
         # Name of application
   applicationId: myAppli
+        # Tenant Id
+  tenantId: admin
         # Username account for get a token
   username: 'User'
         # Password  for get a token

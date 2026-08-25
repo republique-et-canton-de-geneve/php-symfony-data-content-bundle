@@ -1,50 +1,71 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
 use EtatGeneve\DataContentBundle\DataContentBundle;
-use EtatGeneve\DataContentBundle\DataContentExtension;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
+use Symfony\Component\Config\Definition\Loader\DefinitionFileLoader;
+use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
+#[CoversClass(DataContentBundle::class)]
 class DataContentBundleTest extends TestCase
 {
-    private DataContentBundle $DataContentBundle;
+    private DataContentBundle $dataContentBundle;
+
+    /**
+     * @var array<string,string|int|bool|null>
+     */
+    private array $config = [
+        'tokenAuthenticatorClass' => null,
+        'applicationId' => 'xxapplicationId',
+        'tenantId' => 'xxtenantId',
+        'checkSSL' => true,
+        'clientId' => 'xxclientId',
+        'clientSecret' => 'xxclientSecret',
+        'username' => 'xxusername',
+        'password' => 'xxpassword',
+        'tokenTimeout' => 1,
+        'tokenAuthSsoUrl' => 'xxtokenAuthSsoUrl',
+        'restUrl' => 'xxrestUrl',
+        'baseId' => 'xxbaseId',
+        'audience' => 'xxaudience',
+        'timeout' => 1,
+    ];
 
     public function setUp(): void
     {
-        $this->DataContentBundle = new DataContentBundle();
+        $this->dataContentBundle = new DataContentBundle();
     }
 
-    public function testLoad(): void
+    public function testLoadExtension(): void
     {
-        $dataContentExtension = $this->DataContentBundle->getContainerExtension();
-        $this->assertInstanceOf(DataContentExtension::class, $dataContentExtension);
-        $config = [0 => [
-            'tokenAuthenticatorClass' => null,
-            'applicationId' => 'xxapplicationId',
-            'checkSSL' => true,
-            'clientId' => 'xxclientId',
-            'clientSecret' => 'xxclientSecret',
-            'username' => 'xxusername',
-            'password' => 'xxpassword',
-            'tokenTimeout' => 1,
-            'tokenAuthSsoUrl' => 'xxtokenAuthSsoUrl',
-            'restUrl' => 'xxrestUrl',
-            'baseId' => 'xxbaseId',
-            'audience' => 'xxaudience',
-            'timeout' => 1,
-        ]];
         $containerBuilder = new ContainerBuilder();
-        $dataContentExtension->load($config, $containerBuilder);
+        $phpFileLoader = new PhpFileLoader($containerBuilder, new FileLocator(dirname(__DIR__) . '/Resources/config'));
+        $instanceOf = [];
+        $containerConfigurator = new ContainerConfigurator($containerBuilder, $phpFileLoader, $instanceOf, 'xx', 'xx');
+        $this->dataContentBundle->loadExtension($this->config, $containerConfigurator, $containerBuilder);
+        $this->expectNotToPerformAssertions();
     }
 
-    public function testGetAlias(): void
+    public function testConfigure(): void
     {
-        /**
-         * @var DataContentExtension $containerExtension
-         */
-        $containerExtension = $this->DataContentBundle->getContainerExtension();
-        $this->assertEquals('data_content', $containerExtension->getAlias());
+        $treeBuilder = new TreeBuilder('data_content');
+        $fileLocator = new FileLocator();
+        $defintionLoader = new DefinitionFileLoader($treeBuilder, $fileLocator);
+        $definition = new DefinitionConfigurator($treeBuilder, $defintionLoader, '', '');
+        $this->dataContentBundle->configure($definition);
+        $node = $definition->rootNode()->getNode(true);
+        $processor = new Processor();
+        $processor->process($node, [0 => $this->config]);
+        $this->expectNotToPerformAssertions();
     }
 }

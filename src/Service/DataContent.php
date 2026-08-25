@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Service;
 
-use EtatGeneve\DataContentBundle\DataContentNotFoundException;;
+use EtatGeneve\DataContentBundle\DataContentJsonException;
+use EtatGeneve\DataContentBundle\DataContentNotFoundException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Part\DataPart;
@@ -14,6 +15,7 @@ use Symfony\Component\Mime\Part\Multipart\FormDataPart;
  * @phpstan-type DataContentConfig array{
  * checkSSL: bool,
  * applicationId: string,
+ * tenantId: string,
  * clientId?: string,
  * clientSecret?: string,
  * username? : string,
@@ -29,8 +31,7 @@ use Symfony\Component\Mime\Part\Multipart\FormDataPart;
  */
 class DataContent extends DriverDataContent
 {
-
- /**
+    /**
      * Whitelist of extensions the GED is known to return, mapped to a safe Content-Type.
      * Anything not in this list falls back to application/octet-stream rather than
      * blindly trusting a server-provided extension in the Content-Type header.
@@ -54,8 +55,7 @@ class DataContent extends DriverDataContent
         'zip' => 'application/zip',
     ];
 
-
-/**
+    /**
      * Retrieving the definition and status of a document database.
      *
      * This method allows you to retrieve the definition of a document database,
@@ -123,7 +123,10 @@ class DataContent extends DriverDataContent
         if (isset($options['searchLimit'])) {
             $parameters['searchLimit'] = $options['searchLimit'];
         }
-        $json = strval(json_encode($parameters));
+        $json = json_encode($parameters);
+        if (false === $json) {
+            throw new DataContentJsonException();
+        }
 
         return $this->commandJsonRsp(
             'POST',
@@ -155,10 +158,8 @@ class DataContent extends DriverDataContent
      *                           automatic downloading on the browser
      * @param bool $raw          : If is true, download the native content of a spool document without
      *                           formatting with the page background
-     *
-     * @return string|Response
      */
-    public function getDocument(string $uuid, bool $httpResponse = true, bool $raw = false)
+    public function getDocument(string $uuid, bool $httpResponse = true, bool $raw = false): Response|string
     {
         $this->logger->debug(
             'DataContent : get document',
@@ -169,9 +170,7 @@ class DataContent extends DriverDataContent
             // (potentially large) content that will be discarded.
             $info = $this->searchByUuid($uuid);
             if (!$info || !is_object($info)) {
-                throw new DataContentNotFoundException(
-                    sprintf('DataContent : Error, document %s not found', $uuid)
-                    );
+                throw new DataContentNotFoundException(sprintf('DataContent : Error, document %s not found', $uuid));
             }
             $document = $this->command('GET', '/store/' . ($raw ? 'raw/' : '') . $uuid);
 
@@ -191,8 +190,8 @@ class DataContent extends DriverDataContent
 
             return $response;
         }
-        return $this->command('GET', '/store/' . ($raw ? 'raw/' : '') . $uuid)->getContent();
 
+        return $this->command('GET', '/store/' . ($raw ? 'raw/' : '') . $uuid)->getContent();
     }
 
     /**
@@ -245,6 +244,7 @@ class DataContent extends DriverDataContent
             'DataContent :  storeDocument  ',
             ['filePath' => $filePath, 'title' => $title, 'criterions' => $criterions, 'options' => $options]
         );
+
         $path_parts = pathinfo($filePath);
         if (null === $title) {
             $title = $path_parts['basename'];

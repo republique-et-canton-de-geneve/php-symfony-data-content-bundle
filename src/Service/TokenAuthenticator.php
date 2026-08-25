@@ -34,7 +34,7 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
         HttpClientInterface $httpClient,
         LoggerInterface $logger,
         CacheInterface $cache,
-        array $config
+        array $config,
     ) {
         $this->httpClient = $httpClient;
         $this->logger = $logger;
@@ -55,7 +55,7 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
     {
         $token = $this->cache->get(
             self::DATA_CONTENT_TOKEN_CACHE_KEY,
-            function (ItemInterface $item) {
+            function (ItemInterface $item): mixed {
                 try {
                     $this->logger->debug('DatatContent : get token');
                     $parameters = [
@@ -78,15 +78,15 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
                     $data = json_decode($response->getContent());
                     if (is_object($data) && ($data->id_token ?? false)
                     && isset($data->expires_in) && is_numeric($data->expires_in)) {
-                        $item->expiresAfter(intval($data->expires_in) - 10);
+                        $ttl = max(1, intval($data->expires_in) - 10);
+                        $item->expiresAfter($ttl);
 
                         return $data->id_token;
                     }
-                                        $this->logger->error(
+                    $this->logger->error(
                         'DataContent : SSO token response is missing id_token/expires_in',
                         ['response' => $data]
                     );
-
                 } catch (Throwable $e) {
                     $this->logger->error(
                         'DataContent : SSO token request failed',
@@ -94,11 +94,7 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
                     );
                     $this->reset();
 
-                    throw new DataContentAuthenticationException(
-                        'DataContent : Invalid SSO token response',
-                        0,
-                        $e
-                    );
+                    throw new DataContentAuthenticationException('DataContent : Invalid SSO token response', 0, $e);
                 }
                 $this->reset();
                 throw new DataContentAuthenticationException('DataContent : Invalid SSO token response');
