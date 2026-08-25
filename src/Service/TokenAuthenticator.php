@@ -84,8 +84,7 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
                         return $data->id_token;
                     }
                     $this->logger->error(
-                        'DataContent : SSO token response is missing id_token/expires_in',
-                        ['response' => $data]
+                        'DataContent : SSO token response is missing id_token/expires_in'
                     );
                 } catch (Throwable $e) {
                     $this->logger->error(

@@ -86,7 +86,6 @@ class DriverDataContent
             [
                 'type' => $type,
                 'command' => $command,
-                //                'body' => $body,
                 'headers' => $headers,
                 'additionalTimeout' => $additionalTimeout,
             ]
@@ -130,8 +129,6 @@ class DriverDataContent
      * @param string  $type    // 'GET', 'PUT', 'DELETE', ....
      * @param mixed[] $headers
      * @param mixed   $body
-     *
-     * @return mixed
      */
     public function commandJsonRsp(
         string $type,
@@ -139,14 +136,14 @@ class DriverDataContent
         $body = null,
         array $headers = [],
         int $additionalTimeout = 0,
-    ) {
+    ): mixed {
         $response = $this->command($type, $command, $body, $headers, $additionalTimeout);
         $headers = $response->getHeaders(false);
         $status = $response->getStatusCode();
         $content = $response->getContent(false);
         $data = json_decode($content);
         if (400 <= $status) {
-            $error = 'DataContent : Error, the response id not a json';
+            $error = 'DataContent : Error, the response is not a valid json';
             if (
                 'application/json' == ($headers['content-type'][0] ?? null) && is_object($data)
                 && isset($data->exceptionCode) && isset($data->exceptionMessage)
@@ -157,7 +154,7 @@ class DriverDataContent
             }
             $this->logger->error(
                 'DataContent : GED returned an error response',
-                ['command' => $command, 'status' => $status, 'body' => $content]
+                ['command' => $command, 'status' => $status]
             );
 
             throw new DataContentRemoteException($error);

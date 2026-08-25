@@ -31,16 +31,13 @@ class DataContentBundle extends AbstractBundle
         $child->scalarNode('clientSecret')->cannotBeEmpty()->info('Client secret for token authentification')->end();
         $child->scalarNode('restUrl')->isRequired()->cannotBeEmpty()->info('Rest Url for DataContent')->end();
         $child->scalarNode('baseId')->isRequired()->cannotBeEmpty()->info('Base Id for DataContent')->end();
-        $child->scalarNode('timeout')->defaultValue(10)->info('Timout conection for DataContent')->end();
-        $child->scalarNode('uploadDir')->defaultValue(null)->info('Allowed directory for document uploads')->end();
-
+        $child->scalarNode('timeout')->defaultValue(10)->info('Timeout connection for DataContent')->end();
         $child->scalarNode('tokenAuthenticatorClass')->defaultValue(null)->info('Service for token authentification')->end();
-
         $child->scalarNode('username')->info('Username for token authentification')->end();
         $child->scalarNode('password')->info('Password secret for token authentification')->end();
         $child->scalarNode('audience')->info('Audience for token request')->end();
-        $child->scalarNode('tokenTimeout')->defaultValue(10)->info('Timout conection for authentification')->end();
-        $child->scalarNode('tokenAuthSsoUrl')->info('Timout connection for token authentification')->end();
+        $child->scalarNode('tokenTimeout')->defaultValue(10)->info('Timeout connection for authentification')->end();
+        $child->scalarNode('tokenAuthSsoUrl')->info('Timeout connection for token authentification')->end();
     }
 
     /**

@@ -60,10 +60,8 @@ class DataContent extends DriverDataContent
      *
      * This method allows you to retrieve the definition of a document database,
      * which provides a list of the metadata associated with it and their constraints.
-     *
-     * @return mixed|null
      */
-    public function getBase()
+    public function getBase(): mixed
     {
         $this->logger->debug('DataContent : get base ');
 
@@ -93,12 +91,11 @@ class DataContent extends DriverDataContent
      *      30
      *  );
      *
-     * @param array{fulltext?:?bool,pagesize?:?int,offset?:?int,sortCategoryName?:?string,reversedSort?:?bool,indexOrderPreference?:?string,searchLimit?:?int,timeZone?:?string} $options
-     * @param int                                                                                                                                                                $additionalTimeout tiemout additonnel pour une transaction
-     *
-     * @return mixed
+     * @param array{fulltext?:?bool,pagesize?:?int,offset?:?int,sortCategoryName?:?string,reversedSort?:?bool,
+     * indexOrderPreference?:?string,searchLimit?:?int,timeZone?:?string} $options
+     * @param int $additionalTimeout timemout additonnel pour une transaction
      */
-    public function searchByQuery(?string $query, array $options = [], int $additionalTimeout = 0)
+    public function searchByQuery(?string $query, array $options = [], int $additionalTimeout = 0): mixed
     {
         $this->logger->debug(
             'DataContent : search by query',
@@ -120,9 +117,6 @@ class DataContent extends DriverDataContent
             ],
             'timeZone' => $options['timeZone'] ?? 'Europe/Zurich',
         ];
-        if (isset($options['searchLimit'])) {
-            $parameters['searchLimit'] = $options['searchLimit'];
-        }
         $json = json_encode($parameters);
         if (false === $json) {
             throw new DataContentJsonException();
@@ -139,10 +133,8 @@ class DataContent extends DriverDataContent
 
     /**
      *  Search for a document's metadata in a database directly using the document's UUID.
-     *
-     * @return mixed
      */
-    public function searchByUuid(string $uuid)
+    public function searchByUuid(string $uuid): mixed
     {
         $this->logger->debug('DataContent : search by uuid', ['uuid' => $uuid]);
 
@@ -203,8 +195,6 @@ class DataContent extends DriverDataContent
      * @param array<string,string>                                                          $criterions
      * @param array{'creationDate'?: string|int, 'filename'?: string, 'extension'?: string} $options
      *
-     * @return mixed
-     *
      * Date and Datetime Management
      * For each "criterion" object representing document metadata, its type can be specified by
      * adding the "wordType" attribute.
@@ -238,7 +228,7 @@ class DataContent extends DriverDataContent
      *
      *    This date, 20231124102543000 UTC, corresponds to November 24, 2023, at 11:25:43 GMT+1
      */
-    public function storeDocument(string $filePath, ?string $title = null, array $criterions = [], $options = [])
+    public function storeDocument(string $filePath, ?string $title = null, array $criterions = [], array $options = []): mixed
     {
         $this->logger->debug(
             'DataContent :  storeDocument  ',
@@ -277,10 +267,8 @@ class DataContent extends DriverDataContent
      * Delete a document.
      *
      * This method allows you to delete a document.
-     *
-     * @return mixed
      */
-    public function deleteDocument(string $uuid)
+    public function deleteDocument(string $uuid): mixed
     {
         $this->logger->debug('DataContent :  delete document', ['uuid' => $uuid]);
 
