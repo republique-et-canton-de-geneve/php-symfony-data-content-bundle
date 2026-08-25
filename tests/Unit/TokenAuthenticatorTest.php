@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
+use EtatGeneve\DataContentBundle\DataContentConfigException;
 use EtatGeneve\DataContentBundle\DataContentException;
 use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
 use Exception;
@@ -27,6 +28,7 @@ class TokenAuthenticatorTest extends TestCase
     protected $httpClientResponse;
     protected TokenAuthenticator $tokenAuthenticator;
     protected TokenAuthenticator $tokenAuthenticatorException;
+    protected TokenAuthenticator $tokenAuthenticatorConfigException;
 
     public function setUp(): void
     {
@@ -46,6 +48,7 @@ class TokenAuthenticatorTest extends TestCase
             'audience' => 'xxaudience',
             'timeout' => 1,
         ];
+
         $this->httpClientResponse = json_encode([
             'id_token' => 'fake_token',
             'expires_in' => 3600,
@@ -75,6 +78,14 @@ class TokenAuthenticatorTest extends TestCase
             $logger,
             $this->cache,
             $this->config
+        );
+        $configError = $this->config;
+        unset($configError['password']);
+        $this->tokenAuthenticatorConfigException = new TokenAuthenticator(
+            $httpClient,
+            $logger,
+            $this->cache,
+            $configError
         );
     }
 
@@ -108,5 +119,13 @@ class TokenAuthenticatorTest extends TestCase
         $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
         $this->expectException(DataContentException::class);
         $this->tokenAuthenticatorException->getToken();
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testGetConfigErrorToken(): void
+    {
+        $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
+        $this->expectException(DataContentConfigException::class);
+        $this->tokenAuthenticatorConfigException->getToken();
     }
 }

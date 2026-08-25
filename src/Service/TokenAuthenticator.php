@@ -3,6 +3,7 @@
 namespace EtatGeneve\DataContentBundle\Service;
 
 use EtatGeneve\DataContentBundle\DataContentAuthenticationException;
+use EtatGeneve\DataContentBundle\DataContentConfigException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -56,6 +57,14 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
         $token = $this->cache->get(
             self::DATA_CONTENT_TOKEN_CACHE_KEY,
             function (ItemInterface $item): mixed {
+                if (!isset($this->config['clientId'],
+                    $this->config['clientSecret'],
+                    $this->config['username'],
+                    $this->config['password'],
+                    $this->config['audience']
+                )) {
+                    throw new DataContentConfigException('clientId, clientSecret, username, passowrd or audience parameters are not defined for ToekAuthenticator');
+                }
                 try {
                     $this->logger->debug('DatatContent : get token');
                     $parameters = [
@@ -63,12 +72,12 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
                         'verify_peer' => $this->config['checkSSL'],
                         'headers' => ['X-Application-ID' => $this->config['applicationId']],
                         'body' => [
-                            'client_id' => $this->config['clientId'] ?? '',
-                            'client_secret' => $this->config['clientSecret'] ?? '',
+                            'client_id' => $this->config['clientId'],
+                            'client_secret' => $this->config['clientSecret'],
                             'grant_type' => 'password',
-                            'username' => $this->config['username'] ?? '',
-                            'password' => $this->config['password'] ?? '',
-                            'audience' => $this->config['audience'] ?? '',
+                            'username' => $this->config['username'],
+                            'password' => $this->config['password'],
+                            'audience' => $this->config['audience'],
                             'timeout' => $this->config['tokenTimeout'] ?? 15,
                             'max_duration' => $this->config['tokenTimeout'] ?? 15,
                         ],
@@ -76,8 +85,10 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
 
                     $response = $this->httpClient->request('POST', $this->config['tokenAuthSsoUrl'] ?? '', $parameters);
                     $data = json_decode($response->getContent());
-                    if (is_object($data) && ($data->id_token ?? false)
-                    && isset($data->expires_in) && is_numeric($data->expires_in)) {
+                    if (
+                        is_object($data) && ($data->id_token ?? false)
+                        && isset($data->expires_in) && is_numeric($data->expires_in)
+                    ) {
                         $ttl = max(1, intval($data->expires_in) - 10);
                         $item->expiresAfter($ttl);
 
