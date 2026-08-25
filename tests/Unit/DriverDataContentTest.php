@@ -1,6 +1,6 @@
 <?php
 
-namespace EtatGeneve\DatatContentBundle\Tests\Unit;
+namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
 use EtatGeneve\DataContentBundle\DataContentException;
 use EtatGeneve\DataContentBundle\Service\DataContent;

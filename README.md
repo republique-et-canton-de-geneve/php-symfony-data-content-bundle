@@ -16,7 +16,7 @@ data_content:
         # GED client Id
   clientId: clientId
         # Ged client secret
-  clientSecret: 'secret'
+  clientSecret: '%env(DATA_CONTENT_CLIENT_SECRET)%'
         # URL for GED REST request
   restUrl: 'http://ged.localhost'
         # Base ID
@@ -28,7 +28,7 @@ data_content:
         # Username account for get a token
   username: 'User'
         # Password  for get a token
-  password: 'password'
+  password: '%env(DATA_CONTENT_PASSWORD)%'
         # Audience for token request
   audience: audience
         # URL for get a token

@@ -2,7 +2,7 @@
 
 namespace EtatGeneve\DataContentBundle\Service;
 
-use EtatGeneve\DataContentBundle\DataContentException;
+use EtatGeneve\DataContentBundle\DataContentAuthenticationException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -82,10 +82,26 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
 
                         return $data->id_token;
                     }
+                                        $this->logger->error(
+                        'DataContent : SSO token response is missing id_token/expires_in',
+                        ['response' => $data]
+                    );
+
                 } catch (Throwable $e) {
+                    $this->logger->error(
+                        'DataContent : SSO token request failed',
+                        ['exception' => $e]
+                    );
+                    $this->reset();
+
+                    throw new DataContentAuthenticationException(
+                        'DataContent : Invalid SSO token response',
+                        0,
+                        $e
+                    );
                 }
                 $this->reset();
-                throw new DataContentException('DatatContent : Invalid SSO token response');
+                throw new DataContentAuthenticationException('DataContent : Invalid SSO token response');
             },
             0.1
         );
