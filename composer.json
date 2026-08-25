@@ -17,7 +17,7 @@
         "phpstan/extension-installer": "*",
         "phpstan/phpstan": "*",
         "friendsofphp/php-cs-fixer": "*",
-        "rector/rector": "*",
+        "rector/rector": "^2.6",
         "phpunit/php-code-coverage": "*"
     },
     "license": "Apache-2.0",
