@@ -30,7 +30,6 @@ class DataContentTest extends TestCase
     public function setUp(): void
     {
         $config = [
-            'tokenAuthenticatorClass' => TokenAuthenticator::class,
             'applicationId' => 'xxapplicationId',
             'tenantId' => 'xxtenantId',
             'checkSSL' => true,
