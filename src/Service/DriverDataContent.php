@@ -81,7 +81,14 @@ class DriverDataContent
     ): ResponseInterface {
         $headers['X-Application-ID'] = $this->config['applicationId'];
         $headers['X-Tenant-ID'] = $this->config['tenantId'];
-        $headers['X-Correlation-ID'] = bin2hex(random_bytes(8));
+        $correlationId = bin2hex(random_bytes(8));
+        $headers['X-Correlation-ID'] = $correlationId;
+        $url = $this->config['restUrl'] . $command;
+        $username = $this->getUserIdentifier();
+        if ($username) {
+            $headers['connectedAs'] = $username;
+        }
+
         $this->logger->debug(
             'DataContent : execute command ',
             [
@@ -91,12 +98,6 @@ class DriverDataContent
                 'additionalTimeout' => $additionalTimeout,
             ]
         );
-        $url = $this->config['restUrl'] . $command;
-        $username = $this->getUserIdentifier();
-        if ($username) {
-            $headers['connectedAs'] = $username;
-        }
-
         $options = [
             'headers' => $headers,
             'verify_host' => $this->config['checkSSL'],
@@ -114,7 +115,7 @@ class DriverDataContent
         } catch (Throwable $e) {
             $this->logger->error(
                 'DataContent : network error while calling GED',
-                ['type' => $type, 'command' => $command, 'exception' => $e]
+                ['type' => $type, 'command' => $command, 'exception' => $e, 'X-Correlation-ID' => $correlationId]
             );
 
             throw new DataContentRemoteException(sprintf('DataContent : network error for command %s return', $command), 0, $e);
