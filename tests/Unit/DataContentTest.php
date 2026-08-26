@@ -6,6 +6,7 @@ namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
 use EtatGeneve\DataContentBundle\Exception\DataContentException;
 use EtatGeneve\DataContentBundle\Exception\DataContentJsonException;
+use EtatGeneve\DataContentBundle\Exception\DataContentNotFoundException;
 use EtatGeneve\DataContentBundle\Service\DataContent;
 use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
@@ -114,6 +115,14 @@ class DataContentTest extends TestCase
 
         $this->responseContent = 'data';
         $this->expectException(DataContentException::class);
+        $this->dataContent->getDocument('test-uuid', true, false);
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testGetDocumentNotFound(): void
+    {
+        $this->responseContent = '';
+        $this->expectException(DataContentNotFoundException::class);
         $this->dataContent->getDocument('test-uuid', true, false);
     }
 
