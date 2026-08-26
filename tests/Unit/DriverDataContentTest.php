@@ -15,8 +15,6 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -27,7 +25,6 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 class DriverDataContentTest extends TestCase
 {
     protected DriverDataContent $driverDataContent;
-    protected ?string $userIdentifier;
     protected int $responseStatusCode = 200;
     /** @var array<string, array<int, string>> */
     protected array $responseHeader;
@@ -52,26 +49,9 @@ class DriverDataContentTest extends TestCase
             'timeout' => 1,
         ];
         $logger = $this->createMock(LoggerInterface::class);
-        $security = $this->createMock(Security::class);
 
         $tokenAuthenticator = $this->createMock(TokenAuthenticator::class);
         $tokenAuthenticator->method('getToken')->willReturn('fake_token');
-
-        $this->userIdentifier = 'test_user';
-        $user = $this->createMock(UserInterface::class);
-        $user->method('getUserIdentifier')
-            ->willReturnCallback(
-                fn (): string => $this->userIdentifier
-            );
-        $security->method('getUser')->willReturnCallback(
-            function () use ($user): ?\PHPUnit\Framework\MockObject\MockObject {
-                if (null === $this->userIdentifier) {
-                    return null;
-                }
-
-                return $user;
-            }
-        );
 
         $this->responseContent = '';
         $this->responseHeader = [];
@@ -93,7 +73,6 @@ class DriverDataContentTest extends TestCase
         $this->driverDataContent = new DriverDataContent(
             $httpClient,
             $logger,
-            $security,
             $tokenAuthenticator,
             $config
         );
@@ -138,36 +117,6 @@ class DriverDataContentTest extends TestCase
             ['Custom-Header' => 'HeaderValue'],
             10
         );
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-    }
-
-    #[AllowMockObjectsWithoutExpectations]
-    public function testCommandNoUser(): void
-    {
-        $this->userIdentifier = '';
-        $response = $this->driverDataContent->command(
-            'GET',
-            '/test-command',
-            null,
-            ['Custom-Header' => 'HeaderValue'],
-            10
-        );
-
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-    }
-
-    #[AllowMockObjectsWithoutExpectations]
-    public function testCommandNullUser(): void
-    {
-        $this->userIdentifier = null;
-        $response = $this->driverDataContent->command(
-            'GET',
-            '/test-command',
-            null,
-            ['Custom-Header' => 'HeaderValue'],
-            10
-        );
-
         $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 

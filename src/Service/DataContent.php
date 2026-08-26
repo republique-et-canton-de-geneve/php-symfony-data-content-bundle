@@ -201,8 +201,11 @@ class DataContent extends DriverDataContent
      * This method allows you to create a new document in a database by passing the document's
      * metadata and content as parameters.
      *
-     * @param array<string,string>                                                          $criterions
-     * @param array{'creationDate'?: string|int, 'filename'?: string, 'extension'?: string} $options
+     * @param array<string,string> $criterions
+     * @param array{'creationDate'?: string|int,
+     * 'filename'?: string,
+     * 'extension'?: string,
+     * 'documentType'?: string} $options
      *
      * Date and Datetime Management
      * For each "criterion" object representing document metadata, its type can be specified by
@@ -251,10 +254,14 @@ class DataContent extends DriverDataContent
         if (null === $title) {
             $title = $path_parts['basename'];
         }
+
+        $documentType = $options['documentType'] ?? '10A_SUPPRESSION';
+        unset($options['documentType']);
         $parameters = [
             '@class' => 'net.docubase.toolkit.model.document.Document',
             'baseId' => $this->config['baseId'],
             'title' => $title,
+            'type' => $documentType,
             'creationDate' => $options['creationDate'] ?? '',
             'filename' => $options['filename'] ?? $path_parts['filename'],
             'extension' => $options['extension'] ?? $path_parts['extension'] ?? '',
