@@ -6,6 +6,9 @@ The following versions are currently receiving security updates:
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 2.1.x   | :white_check_mark: |
+| 2.0.x   | :x:                 |
+| 1.0.x   | :white_check_mark: |
 
 Only the versions marked above receive security patches. Users of
 unsupported versions are strongly encouraged to upgrade.
