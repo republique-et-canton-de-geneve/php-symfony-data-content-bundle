@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Service;
 
+use EtatGeneve\DataContentBundle\Exception\DataContentJsonException;
 use EtatGeneve\DataContentBundle\Exception\DataContentRemoteException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -48,7 +49,7 @@ class DriverDataContent
         if (!$config['checkSSL']) {
             $this->logger->warning(
                 'DataContent : SSL certificate/host verification is DISABLED (checkSSL=false).'
-                . ' This should never be used in production.'
+                    . ' This should never be used in production.'
             );
         }
     }
@@ -118,7 +119,7 @@ class DriverDataContent
 
             throw new DataContentRemoteException(sprintf('DataContent : network error for command %s return', $command), 0, $e);
         }
-        if (in_array($status, [401, 403]) || 500 <= $status) {
+        if (in_array($status, [401, 403])) {
             $this->tokenAuthenticator->reset();
         }
 
@@ -141,9 +142,26 @@ class DriverDataContent
         $headers = $response->getHeaders(false);
         $status = $response->getStatusCode();
         $content = $response->getContent(false);
-        $data = json_decode($content);
+        if ('' === $content) {
+            $data = null;
+        } else {
+            $data = json_decode($content);
+            if (null === $data && JSON_ERROR_NONE !== json_last_error()) {
+                $this->logger->error(
+                    'DataContent : JSON decode failed',
+                    [
+                        'command' => $command,
+                        'status' => $status,
+                        'content' => mb_strcut($content, 0, 512),
+                        'error' => json_last_error_msg(),
+                    ]
+                );
+                throw new DataContentJsonException('DataContent : Error, the response is not a valid json');
+            }
+        }
+
         if (400 <= $status) {
-            $error = 'DataContent : Error, the response is not a valid json';
+            $error = 'DataContent : Error, the response is not a valid';
             if (
                 'application/json' == ($headers['content-type'][0] ?? null) && is_object($data)
                 && isset($data->exceptionCode) && isset($data->exceptionMessage)

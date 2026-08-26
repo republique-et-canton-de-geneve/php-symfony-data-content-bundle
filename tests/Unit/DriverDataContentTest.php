@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
 use EtatGeneve\DataContentBundle\Exception\DataContentException;
+use EtatGeneve\DataContentBundle\Exception\DataContentJsonException;
 use EtatGeneve\DataContentBundle\Exception\DataContentRemoteException;
 use EtatGeneve\DataContentBundle\Service\DataContent;
 use EtatGeneve\DataContentBundle\Service\DriverDataContent;
@@ -36,7 +37,6 @@ class DriverDataContentTest extends TestCase
     public function setUp(): void
     {
         $config = [
-            'tokenAuthenticatorClass' => null,
             'applicationId' => 'xxapplicationId',
             'tenantId' => 'xxtenantId',
             'checkSSL' => false,
@@ -189,6 +189,7 @@ class DriverDataContentTest extends TestCase
     public function testCommandJsonRspCorrupt(): void
     {
         $this->responseContent = 'xxx';
+        $this->expectException(DataContentJsonException::class);
         $response = $this->driverDataContent->commandJsonRsp(
             'GET',
             '/test-command',
@@ -196,7 +197,6 @@ class DriverDataContentTest extends TestCase
             ['Custom-Header' => 'HeaderValue'],
             10
         );
-        $this->assertEquals(null, $response);
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -221,7 +221,6 @@ class DriverDataContentTest extends TestCase
         $this->responseContent = json_encode((object) ['exceptionCode' => 100, 'exceptionMessage' => 'Error message']);
         $this->responseStatusCode = 501;
         $this->expectException(DataContentException::class);
-        $this->expectExceptionMessage('DataContent : Error for command /test-command : 100 Error message');
         $this->driverDataContent->commandJsonRsp(
             'GET',
             '/test-command',

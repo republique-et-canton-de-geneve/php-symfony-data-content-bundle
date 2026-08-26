@@ -25,7 +25,6 @@ class DataContentBundleTest extends TestCase
      * @var array<string,string|int|bool|null>
      */
     private array $config = [
-        'tokenAuthenticatorClass' => null,
         'applicationId' => 'xxapplicationId',
         'tenantId' => 'xxtenantId',
         'checkSSL' => true,

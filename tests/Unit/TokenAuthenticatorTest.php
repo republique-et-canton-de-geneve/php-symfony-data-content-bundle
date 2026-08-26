@@ -31,7 +31,6 @@ class TokenAuthenticatorTest extends TestCase
     public function setUp(): void
     {
         $this->config = [
-            'tokenAuthenticatorClass' => TokenAuthenticator::class,
             'applicationId' => 'xxapplicationId',
             'tenantId' => 'xxtenantId',
             'checkSSL' => true,

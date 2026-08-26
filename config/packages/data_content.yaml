@@ -25,6 +25,4 @@ data_content:
   baseId: baseId
         # Audience for token request
   audience: audience
-        # service for token authentication
-  tokenAuthenticatorClass: ~
 ...
