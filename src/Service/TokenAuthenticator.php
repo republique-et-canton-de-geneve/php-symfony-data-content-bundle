@@ -2,14 +2,15 @@
 
 namespace EtatGeneve\DataContentBundle\Service;
 
-use EtatGeneve\DataContentBundle\DataContentAuthenticationException;
-use EtatGeneve\DataContentBundle\DataContentConfigException;
+use EtatGeneve\DataContentBundle\Exception\DataContentAuthenticationException;
+use EtatGeneve\DataContentBundle\Exception\DataContentConfigException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
+use function hash;
 use function intval;
 use function is_numeric;
 use function is_object;
@@ -24,13 +25,13 @@ use function is_string;
  */
 class TokenAuthenticator implements InterfaceTokenAuthenticator
 {
-    public const DATA_CONTENT_TOKEN_CACHE_KEY = 'data_content_token_cache_key';
-
     private HttpClientInterface $httpClient;
     private LoggerInterface $logger;
     private CacheInterface $cache;
     /** @var DataContentAuthenticatorConfig */
     private array $config;
+
+    private string $keyCache;
 
     /**
      * @param DataContentConfig $config
@@ -43,18 +44,19 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
     ) {
         if (!isset($config['clientId'],$config['clientSecret'],$config['username'],
             $config['password'],$config['audience'],$config['tokenAuthSsoUrl'])) {
-            throw new DataContentConfigException('clientId, clientSecret, username, passowrd or audience config parameters are not defined for TokenAuthenticator');
+            throw new DataContentConfigException('clientId, clientSecret, username, password or audience config parameters are not defined for TokenAuthenticator');
         }
         $this->httpClient = $httpClient;
         $this->logger = $logger;
         $this->cache = $cache;
         $this->config = $config;
+        $this->keyCache = 'DataContent-' . hash('sha256', $config['clientId'] . $config['username'] . $config['audience'] . $config['tokenAuthSsoUrl']);
     }
 
     public function reset(): void
     {
-        $this->logger->debug('DatatContent : Clear cache token');
-        $this->cache->delete(self::DATA_CONTENT_TOKEN_CACHE_KEY);
+        $this->logger->debug('DataContent : Clear cache token');
+        $this->cache->delete($this->keyCache);
     }
 
     /**
@@ -63,10 +65,10 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
     public function getToken(): string
     {
         $token = $this->cache->get(
-            self::DATA_CONTENT_TOKEN_CACHE_KEY,
+            $this->keyCache,
             function (ItemInterface $item): mixed {
                 try {
-                    $this->logger->debug('DatatContent : get token');
+                    $this->logger->debug('DataContent : get token');
                     $parameters = [
                         'verify_host' => $this->config['checkSSL'],
                         'verify_peer' => $this->config['checkSSL'],
@@ -78,9 +80,9 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
                             'username' => $this->config['username'],
                             'password' => $this->config['password'],
                             'audience' => $this->config['audience'],
-                            'timeout' => $this->config['tokenTimeout'] ?? 15,
-                            'max_duration' => $this->config['tokenTimeout'] ?? 15,
                         ],
+                        'timeout' => $this->config['tokenTimeout'] ?? 15,
+                        'max_duration' => $this->config['tokenTimeout'] ?? 15,
                     ];
 
                     $response = $this->httpClient->request('POST', $this->config['tokenAuthSsoUrl'], $parameters);

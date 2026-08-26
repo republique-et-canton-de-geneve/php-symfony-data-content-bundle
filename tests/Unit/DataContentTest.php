@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
-use EtatGeneve\DataContentBundle\DataContentException;
-use EtatGeneve\DataContentBundle\DataContentJsonException;
+use EtatGeneve\DataContentBundle\Exception\DataContentException;
+use EtatGeneve\DataContentBundle\Exception\DataContentJsonException;
 use EtatGeneve\DataContentBundle\Service\DataContent;
 use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
@@ -30,7 +30,6 @@ class DataContentTest extends TestCase
     public function setUp(): void
     {
         $config = [
-            'tokenAuthenticatorClass' => TokenAuthenticator::class,
             'applicationId' => 'xxapplicationId',
             'tenantId' => 'xxtenantId',
             'checkSSL' => true,
@@ -123,6 +122,16 @@ class DataContentTest extends TestCase
     {
         $path = realpath(__DIR__ . '/../Fixtures/test-file.txt');
         $this->assertIsString($path);
+        $this->dataContent->storeDocument($path, null, ['crtiterions' => 'value1']);
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testStoreDocumentError(): void
+    {
+        $path = realpath(__DIR__ . '/../Fixtures');
+        $this->assertIsString($path);
+        $path .= '/no-file-exist.txt';
+        $this->expectException(DataContentException::class);
         $this->dataContent->storeDocument($path, null, ['crtiterions' => 'value1']);
     }
 

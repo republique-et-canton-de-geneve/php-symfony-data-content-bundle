@@ -4,23 +4,22 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Tests\Unit;
 
-use EtatGeneve\DataContentBundle\DataContentConfigException;
-use EtatGeneve\DataContentBundle\DataContentException;
+use EtatGeneve\DataContentBundle\Exception\DataContentConfigException;
+use EtatGeneve\DataContentBundle\Exception\DataContentException;
 use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
 use Exception;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 #[CoversClass(TokenAuthenticator::class)]
 class TokenAuthenticatorTest extends TestCase
 {
-    protected CacheInterface $cache;
+    protected ArrayAdapter $cache;
 
     /** @var array<string, mixed> */
     protected array $config;
@@ -32,7 +31,6 @@ class TokenAuthenticatorTest extends TestCase
     public function setUp(): void
     {
         $this->config = [
-            'tokenAuthenticatorClass' => TokenAuthenticator::class,
             'applicationId' => 'xxapplicationId',
             'tenantId' => 'xxtenantId',
             'checkSSL' => true,
@@ -55,8 +53,8 @@ class TokenAuthenticatorTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $httpClient = $this->createMock(HttpClientInterface::class);
-        $this->cache = new FilesystemAdapter();
-        $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
+        $this->cache = new ArrayAdapter();
+        $this->cache->clear();
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getContent')->willReturnCallback(
             fn () => $this->httpClientResponse
@@ -83,7 +81,7 @@ class TokenAuthenticatorTest extends TestCase
     #[AllowMockObjectsWithoutExpectations]
     public function testGetToken(): void
     {
-        $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
+        $this->cache->clear();
         $token = $this->tokenAuthenticator->getToken();
         $this->assertEquals('fake_token', $token);
         // token get from cache
@@ -95,7 +93,7 @@ class TokenAuthenticatorTest extends TestCase
     #[AllowMockObjectsWithoutExpectations]
     public function testGetInvalidToken(): void
     {
-        $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
+        $this->cache->clear();
         $this->httpClientResponse = json_encode([
             'id_token' => '',
             'expires_in' => 3600,
@@ -107,7 +105,7 @@ class TokenAuthenticatorTest extends TestCase
     #[AllowMockObjectsWithoutExpectations]
     public function testGetErrorToken(): void
     {
-        $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
+        $this->cache->clear();
         $this->expectException(DataContentException::class);
         $this->tokenAuthenticatorException->getToken();
     }
@@ -115,7 +113,7 @@ class TokenAuthenticatorTest extends TestCase
     #[AllowMockObjectsWithoutExpectations]
     public function testGetConfigErrorToken(): void
     {
-        $this->cache->delete(TokenAuthenticator::DATA_CONTENT_TOKEN_CACHE_KEY);
+        $this->cache->clear();
         $this->expectException(DataContentConfigException::class);
 
         $logger = $this->createMock(LoggerInterface::class);

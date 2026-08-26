@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace EtatGeneve\DataContentBundle\Service;
 
-use EtatGeneve\DataContentBundle\DataContentJsonException;
-use EtatGeneve\DataContentBundle\DataContentNotFoundException;
+use EtatGeneve\DataContentBundle\Exception\DataContentException;
+use EtatGeneve\DataContentBundle\Exception\DataContentJsonException;
+use EtatGeneve\DataContentBundle\Exception\DataContentNotFoundException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Part\DataPart;
@@ -26,7 +27,6 @@ use Symfony\Component\Mime\Part\Multipart\FormDataPart;
  * restUrl : string,
  * baseId : string,
  * audience? : string,
- * tokenAuthenticatorClass : ?string
  * }
  */
 class DataContent extends DriverDataContent
@@ -102,7 +102,7 @@ class DataContent extends DriverDataContent
      *
      * @param array{fulltext?:?bool,pagesize?:?int,offset?:?int,sortCategoryName?:?string,reversedSort?:?bool,
      * indexOrderPreference?:?string,searchLimit?:?int,timeZone?:?string} $options
-     * @param int $additionalTimeout timemout additonnel pour une transaction
+     * @param int $additionalTimeout Additional timeout for a transaction
      */
     public function searchByQuery(?string $query, array $options = [], int $additionalTimeout = 0): mixed
     {
@@ -114,7 +114,7 @@ class DataContent extends DriverDataContent
             '@class' => 'net.docubase.toolkit.model.search.SortedSearchQuery',
             'query' => $query,
             'fullText' => $options['fullText'] ?? null,
-            // be careful,  a exception is throw if the DataContent base is a not a fullText
+            // be careful, an exception is throw if the DataContent base is a not a fullText
             'pageSize' => $options['pageSize'] ?? null,
             'offset' => $options['offset'] ?? null,
             'sortCategoryName' => $options['sortCategoryName'] ?? null,
@@ -178,7 +178,7 @@ class DataContent extends DriverDataContent
             $response = new Response($document->getContent());
             $file = (isset($info->filename) && is_string($info->filename)) ? $info->filename : 'file';
             $extension = (isset($info->extension) && is_string($info->extension))
-                ? strtolower($info->extension) : 'bin';
+                ? strtolower(ltrim(trim($info->extension), '.')) : 'bin';
             // Only forward a small, known-safe set of extensions/MIME types; anything else
             // falls back to a generic binary type instead of trusting whatever the GED returns.
             $mimeType = self::EXTENSION_MIME_MAP[$extension] ?? 'application/octet-stream';
@@ -243,6 +243,9 @@ class DataContent extends DriverDataContent
             'DataContent :  storeDocument  ',
             ['filePath' => $filePath, 'title' => $title, 'criterions' => $criterions, 'options' => $options]
         );
+        if (!is_file($filePath) || !is_readable($filePath)) {
+            throw new DataContentException(sprintf('DataContent : Error, local file %s does not exist or is not readable', $filePath));
+        }
 
         $path_parts = pathinfo($filePath);
         if (null === $title) {

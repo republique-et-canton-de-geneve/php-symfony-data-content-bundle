@@ -13,12 +13,12 @@
         "symfony/cache": ">=6.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "*",
-        "phpstan/extension-installer": "*",
-        "phpstan/phpstan": "*",
-        "friendsofphp/php-cs-fixer": "*",
+        "phpunit/phpunit": "^13",
+        "phpstan/extension-installer": "^1",
+        "phpstan/phpstan": "^2",
+        "friendsofphp/php-cs-fixer": "^3",
         "rector/rector": "^2.6",
-        "phpunit/php-code-coverage": "*"
+        "phpunit/php-code-coverage": "^14"
     },
     "license": "Apache-2.0",
     "keywords": [

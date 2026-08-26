@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace EtatGeneve\DataContentBundle;
 
 use EtatGeneve\DataContentBundle\Service\DataContent;
-use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -24,20 +23,19 @@ class DataContentBundle extends AbstractBundle
          */
         $rootNode = $definition->rootNode();
         $child = $rootNode->children();
-        $child->scalarNode('checkSSL')->defaultValue(1)->end();
+        $child->booleanNode('checkSSL')->defaultValue(true)->end();
         $child->scalarNode('applicationId')->isRequired()->cannotBeEmpty()->info('Application Name Id')->end();
         $child->scalarNode('tenantId')->defaultValue('admin')->info('Tenant name Id')->end();
-        $child->scalarNode('clientId')->cannotBeEmpty()->info('Client Id for token authentification')->end();
-        $child->scalarNode('clientSecret')->cannotBeEmpty()->info('Client secret for token authentification')->end();
+        $child->scalarNode('clientId')->cannotBeEmpty()->info('Client Id for token authentication')->end();
+        $child->scalarNode('clientSecret')->cannotBeEmpty()->info('Client secret for token authentication')->end();
         $child->scalarNode('restUrl')->isRequired()->cannotBeEmpty()->info('Rest Url for DataContent')->end();
         $child->scalarNode('baseId')->isRequired()->cannotBeEmpty()->info('Base Id for DataContent')->end();
         $child->scalarNode('timeout')->defaultValue(10)->info('Timeout connection for DataContent')->end();
-        $child->scalarNode('tokenAuthenticatorClass')->defaultValue(null)->info('Service for token authentification')->end();
-        $child->scalarNode('username')->info('Username for token authentification')->end();
-        $child->scalarNode('password')->info('Password secret for token authentification')->end();
+        $child->scalarNode('username')->info('Username for token authentication')->end();
+        $child->scalarNode('password')->info('Password secret for token authentication')->end();
         $child->scalarNode('audience')->info('Audience for token request')->end();
-        $child->scalarNode('tokenTimeout')->defaultValue(10)->info('Timeout connection for authentification')->end();
-        $child->scalarNode('tokenAuthSsoUrl')->info('Timeout connection for token authentification')->end();
+        $child->scalarNode('tokenTimeout')->defaultValue(10)->info('Timeout connection for authentication')->end();
+        $child->scalarNode('tokenAuthSsoUrl')->info('Token authentication URL')->end();
     }
 
     /**
@@ -45,16 +43,11 @@ class DataContentBundle extends AbstractBundle
      **/
     public function loadExtension(array $config, ContainerConfigurator $containerConfigurator, ContainerBuilder $containerBuilder): void
     {
-        $tokenAuthenticatorClass = $config['tokenAuthenticatorClass'];
         $services = $containerConfigurator->services();
         $services
             ->defaults()
             ->autowire()      // Automatically injects dependencies in your services.
             ->autoconfigure();
-        if (!$tokenAuthenticatorClass) {
-            $services->set(TokenAuthenticator::class)
-                ->arg('$config', $config);
-        }
         $services->set(DataContent::class)
             ->arg('$config', $config);
     }
