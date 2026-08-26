@@ -10,6 +10,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
+use function hash;
 use function intval;
 use function is_numeric;
 use function is_object;
@@ -24,13 +25,13 @@ use function is_string;
  */
 class TokenAuthenticator implements InterfaceTokenAuthenticator
 {
-    public const DATA_CONTENT_TOKEN_CACHE_KEY = 'data_content_token_cache_key';
-
     private HttpClientInterface $httpClient;
     private LoggerInterface $logger;
     private CacheInterface $cache;
     /** @var DataContentAuthenticatorConfig */
     private array $config;
+
+    private string $keyCache;
 
     /**
      * @param DataContentConfig $config
@@ -49,12 +50,13 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
         $this->logger = $logger;
         $this->cache = $cache;
         $this->config = $config;
+        $this->keyCache = 'DataContent-' . hash('sha256', $config['clientId'] . $config['username'] . $config['audience'] . $config['tokenAuthSsoUrl']);
     }
 
     public function reset(): void
     {
         $this->logger->debug('DataContent : Clear cache token');
-        $this->cache->delete(self::DATA_CONTENT_TOKEN_CACHE_KEY);
+        $this->cache->delete($this->keyCache);
     }
 
     /**
@@ -63,7 +65,7 @@ class TokenAuthenticator implements InterfaceTokenAuthenticator
     public function getToken(): string
     {
         $token = $this->cache->get(
-            self::DATA_CONTENT_TOKEN_CACHE_KEY,
+            $this->keyCache,
             function (ItemInterface $item): mixed {
                 try {
                     $this->logger->debug('DataContent : get token');
