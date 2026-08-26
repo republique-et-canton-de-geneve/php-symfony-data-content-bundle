@@ -24,7 +24,7 @@ class DataContentBundle extends AbstractBundle
          */
         $rootNode = $definition->rootNode();
         $child = $rootNode->children();
-        $child->scalarNode('checkSSL')->defaultValue(1)->end();
+        $child->booleanNode('checkSSL')->defaultValue(true)->end();
         $child->scalarNode('applicationId')->isRequired()->cannotBeEmpty()->info('Application Name Id')->end();
         $child->scalarNode('tenantId')->defaultValue('admin')->info('Tenant name Id')->end();
         $child->scalarNode('clientId')->cannotBeEmpty()->info('Client Id for token authentication')->end();
