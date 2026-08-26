@@ -99,7 +99,7 @@ $this->dataContent->storeDocument(
     criterions: [
         ['categoryName' => 'METIER_DATE', 'wordValue' => '20231124', 'wordType' => 'String']
     ],
-    options: ['filename' => 'my-file.pdf', 'extension' => 'pdf']
+    options: ['filename' => 'my-file.pdf', 'extension' => 'pdf', 'documentType' => '10A_SUPPRESSION']
 );
 
 // Delete a document

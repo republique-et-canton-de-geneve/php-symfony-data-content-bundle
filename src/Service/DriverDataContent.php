@@ -7,8 +7,6 @@ namespace EtatGeneve\DataContentBundle\Service;
 use EtatGeneve\DataContentBundle\Exception\DataContentJsonException;
 use EtatGeneve\DataContentBundle\Exception\DataContentRemoteException;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Throwable;
@@ -25,7 +23,7 @@ class DriverDataContent
 {
     protected HttpClientInterface $httpClient;
     protected LoggerInterface $logger;
-    protected Security $security;
+    //    protected Security $security;
     protected TokenAuthenticator $tokenAuthenticator;
 
     /** @var DataContentConfig */
@@ -37,13 +35,13 @@ class DriverDataContent
     public function __construct(
         HttpClientInterface $httpClient,
         LoggerInterface $logger,
-        Security $security,
+        //      Security $security,
         TokenAuthenticator $tokenAuthenticator,
         array $config,
     ) {
         $this->httpClient = $httpClient;
         $this->logger = $logger;
-        $this->security = $security;
+        //        $this->security = $security;
         $this->tokenAuthenticator = $tokenAuthenticator;
         $this->config = $config;
         if (!$config['checkSSL']) {
@@ -54,18 +52,18 @@ class DriverDataContent
         }
     }
 
-    /**
-     * return user identifier (loginname).
-     */
-    protected function getUserIdentifier(): ?string
-    {
-        $user = $this->security->getUser();
-        if ($user instanceof UserInterface) {
-            return $user->getUserIdentifier();
-        }
+    // /**
+    //  * return user name
+    //  */
+    // protected function getUserIdentifier(): ?string
+    // {
+    //     $user = $this->security->getUser();
+    //     if ($user instanceof UserInterface) {
+    //         return $user->getUserIdentifier();
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
     /**
      * @param string  $type    // 'GET', 'PUT', 'DELETE', ....
@@ -84,7 +82,7 @@ class DriverDataContent
         $correlationId = bin2hex(random_bytes(8));
         $headers['X-Correlation-ID'] = $correlationId;
         $url = $this->config['restUrl'] . $command;
-        $username = $this->getUserIdentifier();
+        $username = $this->config['userName'] ?? null;
         if ($username) {
             $headers['connectedAs'] = $username;
         }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EtatGeneve\DataContentBundle;
 
 use EtatGeneve\DataContentBundle\Service\DataContent;
+use EtatGeneve\DataContentBundle\Service\TokenAuthenticator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -48,6 +49,8 @@ class DataContentBundle extends AbstractBundle
             ->defaults()
             ->autowire()      // Automatically injects dependencies in your services.
             ->autoconfigure();
+        $services->set(TokenAuthenticator::class)
+            ->arg('$config', $config);
         $services->set(DataContent::class)
             ->arg('$config', $config);
     }

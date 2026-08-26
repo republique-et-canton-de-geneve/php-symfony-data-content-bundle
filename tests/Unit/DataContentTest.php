@@ -13,7 +13,6 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -46,12 +45,10 @@ class DataContentTest extends TestCase
             'timeout' => 1,
         ];
         $logger = $this->createMock(LoggerInterface::class);
-        $security = $this->createMock(Security::class);
 
         $tokenAuthenticator = $this->createMock(TokenAuthenticator::class);
         $tokenAuthenticator->method('getToken')->willReturn('fake_token');
 
-        $security->method('getUser')->willReturn(null);
         $this->responseContent = '';
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(200);
@@ -66,7 +63,6 @@ class DataContentTest extends TestCase
         $this->dataContent = new DataContent(
             $httpClient,
             $logger,
-            $security,
             $tokenAuthenticator,
             $config
         );
