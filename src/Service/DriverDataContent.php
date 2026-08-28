@@ -48,6 +48,7 @@ class DriverDataContent
             );
         }
     }
+
     /**
      * @param string  $type    // 'GET', 'PUT', 'DELETE', ....
      * @param mixed[] $headers
